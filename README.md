@@ -1,0 +1,2 @@
+# NutritionTrackerProject
+个人java后端开发项目，用于记录用户每日营养摄入情况、设定减肥目标、追踪体重变化等
