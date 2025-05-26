@@ -16,7 +16,8 @@ public interface FoodService {
 
     Result<List<FoodVO>> getFoodInventory(Long userId);
 
-    Result<String> intake(IntakeDTO intakeInfo);
 
-    Result<IntakeDetailVO> getTodayIntakeDetails(Long userId, LocalDate date);
+    public Result<String> intake(IntakeDTO intakeInfo);
+
+    public Result<IntakeDetailVO> getTodayIntakeDetails(Long userId, LocalDate date);
 }

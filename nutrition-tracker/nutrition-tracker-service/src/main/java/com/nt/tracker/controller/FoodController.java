@@ -31,6 +31,7 @@ public class FoodController {
         return foodService.getFoodInventory(userId);
     }
 
+
     @PostMapping("/intake")
     public Result<String> intake(@RequestBody IntakeDTO intakeInfo) {
         return foodService.intake(intakeInfo);
@@ -40,4 +41,5 @@ public class FoodController {
     public Result<IntakeDetailVO> getTodayIntakeDetails(@PathVariable Long userId, @PathVariable LocalDate date) {
         return foodService.getTodayIntakeDetails(userId, date);
     }
+
 }
