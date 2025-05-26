@@ -14,7 +14,7 @@
 ## 🛠 技术栈
 
 - **后端**：Spring Boot, MyBatis
-- **后端**：Vue3
+- **前端**：Vue3
 - **安全认证**：JWT
 - **数据库**：MySQL
 - **工具库**：Lombok, HikariCP, JJWT，Git, Postman
