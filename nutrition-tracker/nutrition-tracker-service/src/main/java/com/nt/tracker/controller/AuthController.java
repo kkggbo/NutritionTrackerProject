@@ -1,6 +1,7 @@
 package com.nt.tracker.controller;
 
 import com.nt.tracker.common.Result;
+import com.nt.tracker.domain.dto.User;
 import com.nt.tracker.domain.dto.UserDTO;
 import com.nt.tracker.service.AuthService;
 import com.nt.tracker.service.impl.AuthServiceImpl;
@@ -29,7 +30,7 @@ public class AuthController {
 
     @PostMapping("/login")
     public Result<String> login(@RequestBody UserDTO user) {
-        UserDTO u = authService.login(user);
+        User u = authService.login(user);
 
         // 是否登陆成功
         if(u == null){

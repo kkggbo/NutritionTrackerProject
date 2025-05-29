@@ -1,5 +1,6 @@
 package com.nt.tracker.mapper;
 
+import com.nt.tracker.domain.dto.User;
 import com.nt.tracker.domain.dto.UserDTO;
 import org.apache.ibatis.annotations.Insert;
 import org.apache.ibatis.annotations.Mapper;
@@ -18,6 +19,6 @@ public interface AuthMapper {
     根据用户名和密码查询员工
      */
     @Select("select * from user where username = #{username} and password = #{password}")
-    UserDTO getUserByNameAndPassword(UserDTO user);
+    User getUserByNameAndPassword(UserDTO user);
 
 }

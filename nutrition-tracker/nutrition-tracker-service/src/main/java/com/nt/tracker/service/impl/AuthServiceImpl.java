@@ -1,5 +1,6 @@
 package com.nt.tracker.service.impl;
 import com.nt.tracker.common.Result;
+import com.nt.tracker.domain.dto.User;
 import com.nt.tracker.domain.dto.UserDTO;
 import com.nt.tracker.mapper.AuthMapper;
 import com.nt.tracker.service.AuthService;
@@ -31,7 +32,7 @@ public class AuthServiceImpl implements AuthService {
     }
 
     @Override
-    public UserDTO login(UserDTO user) {
+    public User login(UserDTO user) {
         // 密码md5加密
         user.setPassword(DigestUtils.md5DigestAsHex(user.getPassword().getBytes()));
         // 获取数据库中的用户

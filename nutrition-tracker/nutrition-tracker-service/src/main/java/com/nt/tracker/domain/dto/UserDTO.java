@@ -7,8 +7,8 @@ import java.io.Serializable;
 @Data
 public class UserDTO implements Serializable {
 
-    // 用户id
-    private int id;
+//    // 用户id
+//    private int id;
 
     // 用户名
     private String username;
