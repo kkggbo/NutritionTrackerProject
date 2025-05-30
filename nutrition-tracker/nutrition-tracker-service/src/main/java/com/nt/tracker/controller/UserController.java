@@ -18,11 +18,23 @@ public class UserController {
     @Autowired
     UserService userService;
 
+    /**
+     * 设置用户信息
+     *
+     * @param userProfile
+     * @return
+     */
     @PostMapping("/profile/set")
     public Result<String> setUserProfile(@RequestBody UserProfileDTO userProfile) {
         return userService.setUserProfile(userProfile);
     }
 
+    /**
+     * 获取用户信息
+     *
+     * @param userId
+     * @return
+     */
     @GetMapping("/profile/get/{userId}")
     public Result<UserProfileDTO> getUserProfile(@PathVariable Long userId) {
         return userService.getUserProfile(userId);

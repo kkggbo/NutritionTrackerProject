@@ -5,7 +5,7 @@ import lombok.Data;
 import java.io.Serializable;
 
 @Data
-public class UserProfileDTO implements Serializable {
+public class UserProfile implements Serializable {
     //  用户id
     private Long userId;
 
@@ -26,4 +26,13 @@ public class UserProfileDTO implements Serializable {
 
     // 活动等级
     private Double activityLevel;
+
+    // BMI
+    private Double bmi;
+
+    // BMR
+    private Integer bmr;
+
+    // 每日热量目标
+    private Integer dailyCalories;
 }

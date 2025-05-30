@@ -2,6 +2,10 @@
 import { User, Lock } from '@element-plus/icons-vue'
 import { ref } from 'vue'
 import { ElMessage } from 'element-plus'
+import { useRouter } from 'vue-router'
+
+// 引入路由
+const router = useRouter()
 
 // 控制注册与登录表单的显示，默认显示登录
 const isRegister = ref(false)
@@ -54,6 +58,8 @@ const form = ref(null)
 
 // 导入注册和登录的函数
 import { registerService, loginService } from '@/api/login.js'
+import { useTokenStore } from '@/stores/token.js'
+const tokenStore = useTokenStore()
 // 调用后台接口完成注册
 const register = async () => {
     form.value.validate(async (valid) => {
@@ -63,14 +69,11 @@ const register = async () => {
                 password: registerData.value.password
             }
             let result = await registerService(data)
-            // if (result.code === 1) {
-            //     // 注册成功
-            //     alert('注册成功')
-            // } else {
-            //     // 注册失败
-            //     alert(result.msg)
-            // }
             ElMessage.success('注册成功')
+            // 把得到的token存储到pinia中
+            tokenStore.setToken(result.data.token)
+            // 跳转到用户信息收集页
+            router.push('/userInfo')
         } else {
             // 校验失败
             ElMessage.warning('请输入有效的用户名或密码')
@@ -78,22 +81,14 @@ const register = async () => {
     })
 }
 
-// 登陆函数
-
+// 登录函数
 const login = async() => {
     // 调用接口完成登录
     let result = await loginService(registerData.value)
-    // if (result.code === 1) {
-    //     // 登录成功
-    //     alert('登录成功')
-
-    //     // 查看token
-    //     console.log(result.data)
-    // } else {
-    //     // 登录失败
-    //     alert(result.msg)
-    // }
     ElMessage.success('登录成功')
+    // 把得到的token存储到pinia中
+    tokenStore.setToken(result.data.token)
+    router.push('/')
 }
 
 // 定义一个函数，登录与注册页面切换时清空数据模型

@@ -1,11 +1,10 @@
 <script setup>
-  import LoginView from '@/views/Login.vue'
   import TestView from '@/views/test.vue'
 </script>
 
 <template>
-  <LoginView />
   <!-- <TestView /> -->
+    <router-view />
 </template>
 
 <style scoped>
