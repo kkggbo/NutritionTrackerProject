@@ -4,10 +4,20 @@
     <el-button class="summary-card" @click="goToSummaryDetails" plain>
       <div class="summary-left">
         <svg viewBox="0 0 140 140" class="calorie-progress-circle" :width="size" :height="size">
-          <circle class="bg-circle" cx="70" cy="70" :r="radius" :stroke-width=12 fill="none" />
-          <circle class="progress-circle" cx="70" cy="70" :r="radius" :stroke-width=12 fill="none"
-            :stroke="progressColor" :stroke-dasharray="circumference" :stroke-dashoffset="dashOffset"
-            stroke-linecap="round" transform="rotate(-90 70 70)" />
+          <circle class="bg-circle" cx="70" cy="70" :r="radius" :stroke-width="12" fill="none" />
+          <circle
+            class="progress-circle"
+            cx="70"
+            cy="70"
+            :r="radius"
+            :stroke-width="12"
+            fill="none"
+            :stroke="progressColor"
+            :stroke-dasharray="circumference"
+            :stroke-dashoffset="dashOffset"
+            stroke-linecap="round"
+            transform="rotate(-90 70 70)"
+          />
           <text x="70" y="62" text-anchor="middle" dominant-baseline="middle" class="calorie-text-line1">
             已食用 {{ totalCalories }} kcal
           </text>
@@ -17,18 +27,20 @@
         </svg>
       </div>
 
-  <div class="summary-right">
-    <div class="macro-item" v-for="macro in macros" :key="macro.label">
-      <div class="progress-label">{{ macro.label }}：{{ macro.value }} / {{ macro.goal }} g</div>
-      <el-progress
-        :percentage="Math.min((macro.value / macro.goal) * 100, 150)"
-        :color="macro.color"
-        status="success"
-        :show-text="false"
-        :stroke-width="14"
-      />
-    </div>
-  </div>
+      <div class="summary-right">
+        <div class="macro-item" v-for="macro in macros" :key="macro.label">
+          <div class="progress-label">
+            {{ macro.label }}：{{ macro.value }} / {{ macro.goal }} g
+          </div>
+          <el-progress
+            :percentage="Math.min((macro.value / macro.goal) * 100, 150)"
+            :color="macro.color"
+            status="success"
+            :show-text="false"
+            :stroke-width="14"
+          />
+        </div>
+      </div>
     </el-button>
 
     <!-- 四餐区域 -->
@@ -39,82 +51,99 @@
       </el-button>
     </div>
 
-    <!-- 标签页
-    <el-tabs v-model="activeTab" class="tab-bar" tab-position="bottom">
-      <el-tab-pane label="营养日记" name="diary"></el-tab-pane>
-      <el-tab-pane label="个人中心" name="profile"></el-tab-pane>
-    </el-tabs> -->
-      <div class="app-container">
-    <div class="page-content">
-      <component :is="currentView" />
-    </div>
+    <div class="app-container">
+      <div class="page-content">
+        <component :is="currentView" />
+      </div>
 
-    <nav class="bottom-nav">
-      <button
-        v-for="tab in tabs"
-        :key="tab.name"
-        :class="['nav-item', { active: activeTab === tab.name }]"
-        @click="activeTab = tab.name"
-      >
-        <span class="icon">{{ tab.icon }}</span>
-        <span class="label">{{ tab.label }}</span>
-      </button>
-    </nav>
-  </div>
+      <nav class="bottom-nav">
+        <button
+          v-for="tab in tabs"
+          :key="tab.name"
+          :class="['nav-item', { active: activeTab === tab.name }]"
+          @click="activeTab = tab.name"
+        >
+          <span class="icon">{{ tab.icon }}</span>
+          <span class="label">{{ tab.label }}</span>
+        </button>
+      </nav>
+    </div>
   </div>
 </template>
 
+
 <script setup>
+import { ref, reactive, computed } from 'vue'
 import { useRouter } from 'vue-router'
-import { computed, ref, defineAsyncComponent } from 'vue'
 import { useTokenStore } from '@/stores/token.js'
+import { getUserDiaryService } from '@/api/user'
 
 const tokenStore = useTokenStore()
 
-const totalCalories = 1600
-const goalCalories = 1800
+// 响应式数据
+const totalCalories = ref(0)
+const goalCalories = ref(0)
 
-const macros = [
-  { label: '碳水', value: 160, goal: 250, color: "#409EFF" },
-  { label: '蛋白质', value: 80, goal: 120 },
-  { label: '脂肪', value: 45, goal: 60, color: "#E6A23C" }
-]
+const macros = reactive([
+  { label: '碳水', value: 0, goal: 0, color: "#409EFF" },
+  { label: '蛋白质', value: 0, goal: 0, color: "#67C23A" },
+  { label: '脂肪', value: 0, goal: 0, color: "#E6A23C" }
+])
 
-const meals = [
-  { name: '早餐', calories: 380 },
-  { name: '中餐', calories: 580 },
-  { name: '晚餐', calories: 350 },
-  { name: '加餐', calories: 40 }
-]
+const meals = reactive([
+  { name: '早餐', calories: 0 },
+  { name: '中餐', calories: 0 },
+  { name: '晚餐', calories: 0 },
+  { name: '加餐', calories: 0 }
+])
 
 const activeTab = ref('diary')
 
-// 圆环相关计算
+// 圆环计算
 const size = 180
 const radius = 64
 const circumference = 2 * Math.PI * radius
 
-const progressPercent = computed(() => Math.min(totalCalories / goalCalories, 1))
-const dashOffset = computed(() => circumference * (1 - progressPercent.value))
+const progressPercent = computed(() =>
+  Math.min(totalCalories.value / goalCalories.value, 1)
+)
+
+const dashOffset = computed(() =>
+  circumference * (1 - progressPercent.value)
+)
 
 const progressColor = computed(() => {
-  const ratio = totalCalories / goalCalories
-  if (totalCalories === 0) {
-    return '#ffffff' // 白色空心
-  } else if (ratio <= 1) {
-    return '#67c23a' // 绿色
-  } else {
-    // 超标红色渐变，越高越红
-    const excessRatio = Math.min((ratio - 1) * 5, 1)
-    const red = Math.round(103 + (255 - 103) * excessRatio)
-    const green = Math.round(195 * (1 - excessRatio))
-    const blue = 58 * (1 - excessRatio)
-    return `rgb(${red},${green},${blue})`
-  }
+  const ratio = totalCalories.value / goalCalories.value
+  if (totalCalories.value === 0) return '#ffffff'
+  if (ratio <= 1) return '#67c23a'
+  const excessRatio = Math.min((ratio - 1) * 5, 1)
+  const red = Math.round(103 + (255 - 103) * excessRatio)
+  const green = Math.round(195 * (1 - excessRatio))
+  const blue = Math.round(58 * (1 - excessRatio))
+  return `rgb(${red},${green},${blue})`
 })
 
-const remainingCalories = computed(() => Math.max(goalCalories - totalCalories, 0))
+const remainingCalories = computed(() =>
+  Math.max(goalCalories.value - totalCalories.value, 0)
+)
 
+// 页面切换
+const Diary = { template: '<div>营养日记内容</div>' }
+const Profile = { template: '<div>个人中心内容</div>' }
+const Settings = { template: '<div>设置页面内容</div>' }
+
+const tabs = [
+  { name: 'diary', label: '营养日记', icon: '📔', component: Diary },
+  { name: 'profile', label: '个人中心', icon: '👤', component: Profile },
+  { name: 'settings', label: '设置', icon: '⚙️', component: Settings }
+]
+
+const currentView = computed(() => {
+  const tab = tabs.find(t => t.name === activeTab.value)
+  return tab ? tab.component : null
+})
+
+// 事件
 function goToMeal(mealName) {
   console.log('查看', mealName)
 }
@@ -123,38 +152,61 @@ function goToSummaryDetails() {
   console.log('进入总结详情页')
 }
 
-// 模拟页面组件（你可以替换成真实页面组件）
-const Diary = {
-  template: '<div>营养日记内容</div>',
-}
-const Profile = {
-  template: '<div>个人中心内容</div>',
-}
-const Settings = {
-  template: '<div>设置页面内容</div>',
+// 获取用户日记数据
+const userDiaryInfo = async () => {
+  try {
+    const data = await getUserDiaryService()
+
+    if (data) {
+
+      // 更新热量数据
+      totalCalories.value = Number(data.totalCalories ?? 0)
+      goalCalories.value = Number(data.goalCalories ?? 0)
+
+      // 更新宏量营养素数组
+      macros.splice(0, macros.length, ...(data.macros.map(item => ({
+        label: getMacroLabel(item.label),
+        value: item.value,
+        goal: item.goal,
+      }))))
+
+      // 更新每餐摄入数据
+      meals.splice(0, meals.length, ...(data.meals.map(item => ({
+        name: getMealName(item.name),
+        calories: item.calories
+      }))))
+    } else {
+      console.warn(result.msg || '获取日记信息失败')
+    }
+  } catch (error) {
+    console.error('请求失败', error)
+  }
 }
 
-const tabs = [
-  { name: 'diary', label: '营养日记', icon: '📔', component: Diary },
-  { name: 'profile', label: '个人中心', icon: '👤', component: Profile },
-  { name: 'settings', label: '设置', icon: '⚙️', component: Settings },
-]
-
-const currentView = computed(() => {
-  const tab = tabs.find(t => t.name === activeTab.value)
-  return tab ? tab.component : null
-})
-
-// 发起请求获取当前页面数据
-import { getUserDiaryService } from '@/api/user'
-const userDiaryInfo  = async()=>{ 
-  let result = await getUserDiaryService()
-  // TODO 拿到后端数据后为前端模型赋值
+// 辅助函数：转换 label 数字为文字
+const getMacroLabel = (label) => {
+  switch (label) {
+    case 1: return '碳水'
+    case 2: return '蛋白质'
+    case 3: return '脂肪'
+    default: return '未知'
+  }
 }
 
-// 调用方法获取数据
+// 辅助函数：转换餐次编号为文字
+const getMealName = (name) => {
+  switch (name) {
+    case 1: return '早餐'
+    case 2: return '中餐'
+    case 3: return '晚餐'
+    case 4: return '加餐'
+    default: return '其他'
+  }
+}
+
 userDiaryInfo()
 </script>
+
 
 <style scoped>
 .page-container {
@@ -249,7 +301,7 @@ userDiaryInfo()
   align-items: center;
   border-radius: 12px;
   background-color: #fff;
-  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
   border: 1px solid rgb(255, 87, 87);
   margin: 0;
 }
@@ -303,7 +355,8 @@ userDiaryInfo()
 }
 
 .nav-item.active {
-  color: #409eff; /* 选中颜色 */
+  color: #409eff;
+  /* 选中颜色 */
   font-weight: 600;
 }
 </style>

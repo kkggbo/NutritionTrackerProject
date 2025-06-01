@@ -34,9 +34,12 @@ instance.interceptors.request.use(
     (config)=>{
         // 添加token
         const tokenStore = useTokenStore()
-        if(tokenStore.token){
-            config.headers.Authorization = tokenStore.token;
+        const token = tokenStore.token
+
+        if (token) {
+            config.headers.Authorization = token
         }
+        
         return config;
     },
     // 请求错误回调

@@ -3,6 +3,7 @@ package com.nt.tracker.controller;
 import com.nt.tracker.common.Result;
 import com.nt.tracker.domain.dto.IntakeDTO;
 import com.nt.tracker.domain.dto.UserProfileDTO;
+import com.nt.tracker.domain.vo.DiaryVO;
 import com.nt.tracker.domain.vo.IntakeDetailVO;
 import com.nt.tracker.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,14 +32,20 @@ public class UserController {
 
     /**
      * 获取用户信息
-     *
-     * @param userId
      * @return
      */
-    @GetMapping("/profile/get/{userId}")
-    public Result<UserProfileDTO> getUserProfile(@PathVariable Long userId) {
-        return userService.getUserProfile(userId);
+    @GetMapping("/profile/get")
+    public Result<UserProfileDTO> getUserProfile() {
+        return userService.getUserProfile();
     }
 
+    /**
+     * 获取用户日记页数据
+     * @return
+     */
+    @GetMapping("/diary")
+    public Result<DiaryVO> getDiary() {
+        return userService.getDiary();
+    }
 
 }

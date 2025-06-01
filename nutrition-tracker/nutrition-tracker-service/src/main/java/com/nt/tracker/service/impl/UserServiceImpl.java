@@ -1,24 +1,24 @@
 package com.nt.tracker.service.impl;
 
 import com.nt.tracker.common.Result;
-import com.nt.tracker.domain.dto.IntakeDTO;
 import com.nt.tracker.domain.dto.UserDTO;
 import com.nt.tracker.domain.dto.UserProfile;
 import com.nt.tracker.domain.dto.UserProfileDTO;
-import com.nt.tracker.domain.vo.FoodVO;
-import com.nt.tracker.domain.vo.IntakeDetailVO;
-import com.nt.tracker.mapper.AuthMapper;
+import com.nt.tracker.domain.vo.DiaryVO;
 import com.nt.tracker.mapper.FoodMapper;
 import com.nt.tracker.mapper.UserMapper;
 import com.nt.tracker.service.UserService;
-import lombok.extern.java.Log;
+import com.nt.tracker.utils.UserThreadLocal;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+
+import static com.nt.tracker.common.Constants.*;
 
 @Service
 @Slf4j
@@ -32,7 +32,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public Result<String> setUserProfile(UserProfileDTO userProfileDTO) {
-        Long userId = userProfileDTO.getUserId();
+        Long userId = UserThreadLocal .getUserId();
         // 检查用户是否存在
         if (getUserById(userId) == null) {
             return Result.error("用户不存在");
@@ -46,6 +46,7 @@ public class UserServiceImpl implements UserService {
         // 创建用户信息对象
         UserProfile userProfile = new UserProfile();
         BeanUtils.copyProperties(userProfileDTO, userProfile);
+        userProfile.setUserId(userId);
 
         // 计算并设置用户BMI值
         userProfile.setBmi(userProfile.getWeight() / Math.pow(userProfile.getHeight() / 100, 2));
@@ -78,9 +79,43 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public Result<UserProfileDTO> getUserProfile(Long userId) {
+    public Result<UserProfileDTO> getUserProfile() {
+        Long userId = UserThreadLocal.getUserId();
         UserProfileDTO userProfile = userMapper.getUserProfile(userId);
         return userProfile == null ? Result.error("用户不存在") : Result.success(userProfile);
+    }
+
+    @Override
+    public Result<DiaryVO> getDiary() {
+        Long userId = UserThreadLocal.getUserId();
+        DiaryVO diary = new DiaryVO();
+
+        // 获取当前用户每日热量获取目标
+        int goalCalories = userMapper.getDailyCalories(userId);
+
+        // 计算用户各营养物摄入目标 (暂时仅简单根据碳水供能50%，蛋白质供能20%，脂肪供能30%计算)
+        int goalCarb = (int) Math.round(goalCalories * 0.5 / 4);    // 碳水供能50%，每克4卡
+        int goalProtein = (int) Math.round(goalCalories * 0.2 / 4); //  蛋白质供能20%，每克4卡
+        int goalFat = (int) Math.round(goalCalories * 0.3 / 9);     //  脂肪供能30%，每克9卡
+
+
+        // TODO 获取用户今日每餐已摄入的食物信息
+
+        // TODO 计算今日各营养物总摄入量
+
+        // TODO 把数据放入diary对象中
+        diary.setGoalCalories(goalCalories);
+        List<DiaryVO.Macro> macros = Arrays.asList(
+                new DiaryVO.Macro(MACRO_CARBOHYDRATE, 0, goalCarb),
+                new DiaryVO.Macro(MACRO_PROTEIN, 0, goalProtein),
+                new DiaryVO.Macro(MACRO_FAT, 0, goalFat)
+        );
+        diary.setMacros(macros);
+
+        List<DiaryVO.Meal> meals = new ArrayList<>();
+        diary.setMeals(meals);
+
+        return Result.success(diary);
     }
 
     private UserDTO getUserById(Long id) {

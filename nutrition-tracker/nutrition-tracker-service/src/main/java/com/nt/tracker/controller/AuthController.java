@@ -24,8 +24,11 @@ public class AuthController {
     private AuthService authService;
 
     @PostMapping("/register")
-    public Result<String> register(@RequestBody UserDTO user) {
-        return authService.register(user.getUsername(), user.getPassword());
+    public Result<String> register(@RequestBody UserDTO userDto) {
+        User user = new User();
+        user.setUsername(userDto.getUsername());
+        user.setPassword(userDto.getPassword());
+        return authService.register(user);
     }
 
     @PostMapping("/login")
@@ -40,10 +43,9 @@ public class AuthController {
         // 生成jwt令牌
         Map<String, Object> claims = new HashMap<>();
         claims.put("id", u.getId());
-        claims.put("username", u.getUsername());
         String token = JwtUtils.generateJwt(claims);
 
-        // 令牌中已经包含了当前用户的id和username
+        // 令牌中已经包含了当前用户的id
         // 返回token
         return Result.success(token);
     }

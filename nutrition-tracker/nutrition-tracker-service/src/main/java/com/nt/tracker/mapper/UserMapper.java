@@ -16,4 +16,7 @@ public interface UserMapper {
 
     @Select("select * from user_profile where user_id = #{userId}")
     UserProfileDTO getUserProfile(Long userId);
+
+    @Select("select daily_calories from user_profile where user_id = #{userId}")
+    int getDailyCalories(Long userId);
 }

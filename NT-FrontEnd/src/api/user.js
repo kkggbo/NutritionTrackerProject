@@ -8,10 +8,10 @@ import { useTokenStore } from '@/stores/token.js'
 export function setUserInfoService(form) {
 
     // 在前端将性别转换为数字
-    const genderMap = {
-        男: 1,
-        女: 2
-    }
+    // const genderMap = {
+    //     男: 1,
+    //     女: 2
+    // }
 
         const goalMap = {
         增肌: 1,
@@ -19,8 +19,7 @@ export function setUserInfoService(form) {
     }
 
     const payload = {
-        userId: 15, // TODO 假设从登录信息中获得
-        gender: genderMap[form.gender],
+        gender: Number(form.gender),
         age: Number(form.age),
         height: Number(form.height),
         weight: Number(form.weight),

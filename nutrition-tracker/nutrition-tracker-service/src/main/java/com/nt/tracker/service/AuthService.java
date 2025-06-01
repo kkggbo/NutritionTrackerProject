@@ -5,7 +5,7 @@ import com.nt.tracker.domain.dto.User;
 import com.nt.tracker.domain.dto.UserDTO;
 
 public interface AuthService {
-    Result<String> register(String username, String password);
+    Result<String> register(User user);
 
     User login(UserDTO user);
 }

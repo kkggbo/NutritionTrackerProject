@@ -71,7 +71,7 @@ const register = async () => {
             let result = await registerService(data)
             ElMessage.success('注册成功')
             // 把得到的token存储到pinia中
-            tokenStore.setToken(result.data.token)
+            tokenStore.setToken(result.data)
             // 跳转到用户信息收集页
             router.push('/userInfo')
         } else {
@@ -87,7 +87,7 @@ const login = async() => {
     let result = await loginService(registerData.value)
     ElMessage.success('登录成功')
     // 把得到的token存储到pinia中
-    tokenStore.setToken(result.data.token)
+    tokenStore.setToken(result.data)
     router.push('/')
 }
 

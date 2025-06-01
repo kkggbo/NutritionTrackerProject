@@ -6,13 +6,13 @@
                 <el-form ref="formRef" :model="form" :rules="rules" label-width="80px" size="large">
                     <el-form-item label="性别" prop="gender">
                         <el-radio-group v-model="form.gender">
-                            <el-radio label="男" />
-                            <el-radio label="女" />
+                            <el-radio v-model="form.gender" :value="1">男</el-radio>
+                            <el-radio v-model="form.gender" :value="2">女</el-radio>
                         </el-radio-group>
                     </el-form-item>
 
                     <el-form-item label="年龄" prop="age">
-                        <el-input-number v-model="form.age" :min="10" :max="90" placeholder="请输入年龄"
+                        <el-input-number v-model="form.age" placeholder="请输入年龄"
                             style="width: 100%" />
                     </el-form-item>
 
@@ -45,15 +45,15 @@
                         </el-button>
                     </el-form-item>
 
-<el-form-item>
-  <div style="width: 100%; display: flex; justify-content: space-between; align-items: center;">
-    <div>
-      <el-button type="primary" @click="submitForm">提交</el-button>
-      <el-button @click="resetForm">重置</el-button>
-    </div>
-    <el-button type="info" size="small" @click="skipSetting">暂不设置</el-button>
-  </div>
-</el-form-item>
+                    <el-form-item>
+                        <div style="width: 100%; display: flex; justify-content: space-between; align-items: center;">
+                            <div>
+                                <el-button type="primary" @click="submitForm">提交</el-button>
+                                <el-button @click="resetForm">重置</el-button>
+                            </div>
+                            <el-button type="info" size="small" @click="skipSetting">暂不设置</el-button>
+                        </div>
+                    </el-form-item>
                 </el-form>
             </el-card>
         </el-col>
@@ -115,12 +115,12 @@ const dialogVisible = ref(false)
 
 // 表单数据
 const form = ref({
-    gender: '',
-    age: '',
-    height: '',
-    weight: '',
-    goal: '',
-    activityLevel: ''
+  age: 10,
+  height: '',
+  weight: '',
+  gender: '',
+  goal: '',
+  activityLevel: '',
 })
 
 // 表单引用
