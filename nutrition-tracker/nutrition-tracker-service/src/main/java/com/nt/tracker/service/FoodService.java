@@ -20,4 +20,8 @@ public interface FoodService {
     public Result<String> intake(IntakeDTO intakeInfo);
 
     public Result<IntakeDetailVO> getTodayIntakeDetails(Long userId, LocalDate date);
+
+    Result<FoodVO> getFoodDetail(Long foodId);
+
+    List<FoodVO> getFoods(int page, int size, String name);
 }

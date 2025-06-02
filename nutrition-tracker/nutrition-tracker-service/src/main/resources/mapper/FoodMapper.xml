@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+ <!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+ <mapper namespace="com.nt.tracker.mapper.FoodMapper">
+    <select id="foodQuery" resultType="com.nt.tracker.domain.vo.FoodVO">
+        select  * from food
+        <where>
+            <if test="name != null and name != ''">
+                and name like concat('%',#{name},'%')
+            </if>
+        </where>
+        order by id asc
+    </select>
+
+    <insert id="addIntake">
+        INSERT INTO food_intake (
+            user_id,
+            food_id,
+            intake_date,
+            weight,
+            meal_type
+        )
+        VALUES (
+                   #{userId},
+                   #{intakeInfo.foodId},
+                   NOW(),
+                   #{intakeInfo.weight},
+                   #{intakeInfo.mealType}
+               )
+    </insert>
+</mapper>

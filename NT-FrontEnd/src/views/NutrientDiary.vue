@@ -45,7 +45,7 @@
 
     <!-- 四餐区域 -->
     <div class="meals-card">
-      <el-button v-for="meal in meals" :key="meal.name" class="meal-card" @click="goToMeal(meal.name)" plain>
+      <el-button v-for="meal in meals" :key="meal.name" class="meal-card" @click="goToMeal(meal.index)" plain>
         <span>{{ meal.name }}</span>
         <div class="meal-calories">{{ meal.calories }} kcal</div>
       </el-button>
@@ -77,6 +77,7 @@ import { ref, reactive, computed } from 'vue'
 import { useRouter } from 'vue-router'
 import { useTokenStore } from '@/stores/token.js'
 import { getUserDiaryService } from '@/api/user'
+const router = useRouter()
 
 const tokenStore = useTokenStore()
 
@@ -91,10 +92,10 @@ const macros = reactive([
 ])
 
 const meals = reactive([
-  { name: '早餐', calories: 0 },
-  { name: '中餐', calories: 0 },
-  { name: '晚餐', calories: 0 },
-  { name: '加餐', calories: 0 }
+  { name: '早餐', calories: 0, index: 1},
+  { name: '中餐', calories: 0, index: 2},
+  { name: '晚餐', calories: 0, index: 3},
+  { name: '加餐', calories: 0, index: 4}
 ])
 
 const activeTab = ref('diary')
@@ -144,8 +145,14 @@ const currentView = computed(() => {
 })
 
 // 事件
-function goToMeal(mealName) {
-  console.log('查看', mealName)
+function goToMeal(mealIndex) {
+  console.log('当前餐编号：' + mealIndex)
+  router.push(
+    {
+      path: '/FoodList',
+      query: { mealType: mealIndex }
+    }
+  )
 }
 
 function goToSummaryDetails() {

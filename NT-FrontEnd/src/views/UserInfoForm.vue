@@ -179,7 +179,6 @@ import { setUserInfoService } from '@/api/user.js'
 const submitForm = () => {
     formRef.value.validate(async (valid) => {
         if (valid) {
-            // console.log(form.value)
             let result = await setUserInfoService(form.value)
             ElMessage.success('提交成功！🎉')
             router.push("/")

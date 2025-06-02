@@ -83,6 +83,11 @@
             <version>5.10.0</version>
             <scope>test</scope>
         </dependency>
+        <dependency>
+             <groupId>com.github.pagehelper</groupId>
+            <artifactId>pagehelper-spring-boot-starter</artifactId>
+             <version>1.4.7</version>
+        </dependency>
 
 
     </dependencies>

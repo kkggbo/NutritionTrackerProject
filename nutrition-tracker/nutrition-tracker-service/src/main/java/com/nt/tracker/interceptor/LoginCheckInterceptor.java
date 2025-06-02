@@ -1,5 +1,6 @@
 package com.nt.tracker.interceptor;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.nt.tracker.common.Result;
 import com.nt.tracker.utils.JwtUtils;
 import com.nt.tracker.utils.UserThreadLocal;
@@ -43,9 +44,12 @@ public class LoginCheckInterceptor implements HandlerInterceptor {
                 return true;
             } catch (Exception e) {
                 // 令牌解析失败，返回错误结果（令牌无效）
-                e.printStackTrace();
-                Result<Object> result = Result.error("登录token无效");
-                response.getWriter().write(result.toString());
+                // e.printStackTrace();
+                Result<Object> result = Result.error("登录token无效或已过期");
+                ObjectMapper mapper = new ObjectMapper();
+                String json = mapper.writeValueAsString(result);
+                response.getWriter().write(json);
+                response.getWriter().flush();
                 return false;
             }
         }
@@ -53,7 +57,10 @@ public class LoginCheckInterceptor implements HandlerInterceptor {
         // token不存在，返回错误结果（未登录）
         Result<Object> result = Result.error("请登录");
         // 将结果写入响应体并返回false
-        response.getWriter().write(result.toString());
+        ObjectMapper mapper = new ObjectMapper();
+        String json = mapper.writeValueAsString(result);
+        response.getWriter().write(json);
+        response.getWriter().flush();
         return false;
     }
 

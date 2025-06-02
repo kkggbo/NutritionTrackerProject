@@ -7,8 +7,7 @@ import java.time.LocalDate;
 
 @Data
 public class IntakeDTO implements Serializable {
-    private Long userId;
+    private Integer mealType;
     private Long foodId;
     private Double weight;
-    private LocalDate intakeDate;
 }

@@ -33,7 +33,7 @@ public class FoodController {
 
 
     @PostMapping("/intake")
-    public Result<String> intake(@RequestBody IntakeDTO intakeInfo) {
+    public Result intake(@RequestBody IntakeDTO intakeInfo) {
         return foodService.intake(intakeInfo);
     }
 
@@ -41,5 +41,33 @@ public class FoodController {
     public Result<IntakeDetailVO> getTodayIntakeDetails(@PathVariable Long userId, @PathVariable LocalDate date) {
         return foodService.getTodayIntakeDetails(userId, date);
     }
+
+    /**
+     *  根据食物id获取某种食物详情
+     * @param foodId
+     * @return
+     */
+    @GetMapping ("/detail/{foodId}")
+    public Result<FoodVO> getFoodDetail(@PathVariable Long foodId) {
+        return foodService.getFoodDetail(foodId);
+    }
+
+    /**
+     *  获取食物列表（分页 + 模糊查询）
+     * @param page
+     * @param size
+     * @param name
+     * @return
+     */
+    @GetMapping("/list")
+    public Result listFoods(
+            @RequestParam int page,
+            @RequestParam int size,
+            @RequestParam(required = false, defaultValue = "") String name
+    ) {
+        List<FoodVO> foods = foodService.getFoods(page, size, name);
+        return Result.success(foods);
+    }
+
 
 }

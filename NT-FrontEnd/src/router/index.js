@@ -6,12 +6,22 @@ import { createRouter, createWebHistory } from 'vue-router'
 import LoginView from '@/views/Login.vue'
 import UserInfoForm from '@/views/UserInfoForm.vue'
 import NutrientDiary from '@/views/NutrientDiary.vue'
+import FoodDetail from '@/views/FoodDetail.vue'
+import FoodList from '@/views/FoodList.vue'
+
 
 // 定义路由关系
 const routes = [
     { path: '/login', component: LoginView },
     { path: '/userInfo', component: UserInfoForm },
-    { path: '/', component: NutrientDiary }
+    { path: '/', component: NutrientDiary },
+    { path: '/foodDetail', component: FoodDetail },
+    {
+        path: '/foodDetail/:foodId',
+        name: 'FoodDetail',
+        component: () => import('@/views/FoodDetail.vue')
+    },
+    { path: '/foodList', component: FoodList}
 ]
 
 // 创建路由器

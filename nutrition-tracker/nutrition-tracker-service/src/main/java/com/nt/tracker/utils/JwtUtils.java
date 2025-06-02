@@ -1,6 +1,7 @@
 package com.nt.tracker.utils;
 
 import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 
@@ -31,7 +32,7 @@ public class JwtUtils {
      * 解析jwt
      *
      **/
-    public static Claims parseJwt(String jwt) {
+    public static Claims parseJwt(String jwt) throws JwtException {
         Claims claims = Jwts.parser()
                 .setSigningKey(signKey.getBytes(StandardCharsets.UTF_8))
                 .parseClaimsJws(jwt)

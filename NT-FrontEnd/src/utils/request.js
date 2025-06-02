@@ -17,7 +17,6 @@ instance.interceptors.response.use(
         if(result.data.code===1){
             return result.data;
         } else {
-            // alert(result.data.msg?result.data.msg:'操作失败');
             ElMessage.error(result.data.msg?result.data.msg:'操作失败');
             return Promise.reject(result.data);
         }

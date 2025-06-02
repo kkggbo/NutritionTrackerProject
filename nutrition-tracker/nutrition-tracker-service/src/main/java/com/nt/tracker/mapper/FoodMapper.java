@@ -1,5 +1,6 @@
 package com.nt.tracker.mapper;
 
+import com.github.pagehelper.Page;
 import com.nt.tracker.domain.dto.FoodDTO;
 import com.nt.tracker.domain.dto.IntakeDTO;
 import com.nt.tracker.domain.dto.UserDTO;
@@ -24,12 +25,18 @@ public interface FoodMapper {
     @Select("select * from food where user_id = #{userId}")
     List<FoodVO> getFoodInventory(Long userId);
 
-    @Insert("insert into food_intake (user_id, food_id, intake_date, weight) values (#{userId}, #{foodId}, #{intakeDate}, #{weight})")
-    void addIntake(IntakeDTO intakeInfo);
+    void addIntake(IntakeDTO intakeInfo, Long userId);
 
     @Select("select * from food where id = #{foodId}")
     FoodVO getFoodById(Long foodId);
 
     @Select("select * from food_intake where user_id = #{userId} and intake_date = #{date}")
     List<IntakeDTO> getIntakesByIdAndDate(Long userId, LocalDate date);
+
+    /**
+     * 根据名称查询食物
+     * @param name
+     * @return
+     */
+    Page<FoodVO> foodQuery(String name);
 }
