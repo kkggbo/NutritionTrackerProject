@@ -149,7 +149,7 @@ function goToMeal(mealIndex) {
   console.log('当前餐编号：' + mealIndex)
   router.push(
     {
-      path: '/FoodList',
+      path: '/mealdetail',
       query: { mealType: mealIndex }
     }
   )
@@ -162,7 +162,9 @@ function goToSummaryDetails() {
 // 获取用户日记数据
 const userDiaryInfo = async () => {
   try {
-    const data = await getUserDiaryService()
+    let result = await getUserDiaryService()
+    const data = result.data
+    console.log('获取日记信息成功', data)
 
     if (data) {
 
@@ -178,9 +180,10 @@ const userDiaryInfo = async () => {
       }))))
 
       // 更新每餐摄入数据
-      meals.splice(0, meals.length, ...(data.meals.map(item => ({
+      meals.splice(0, meals.length, ...(data.meals.map((item, idx) => ({
         name: getMealName(item.name),
-        calories: item.calories
+        calories: item.calories,
+        index: idx + 1
       }))))
     } else {
       console.warn(result.msg || '获取日记信息失败')

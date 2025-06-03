@@ -29,4 +29,38 @@
                    #{intakeInfo.mealType}
                )
     </insert>
+    <select id="getIntakesByIdAndDate" resultType="com.nt.tracker.domain.po.IntakePO">
+        SELECT
+            fi.food_id,
+            fi.meal_type,
+            fi.weight,
+            f.calories_per_100g,
+            f.protein_per_100g,
+            f.fat_per_100g,
+            f.carbs_per_100g
+        FROM
+            food_intake fi
+                JOIN
+            food f ON fi.food_id = f.id
+        WHERE
+            fi.user_id = #{userId}
+          AND fi.intake_date = #{date}
+    </select>
+
+    <select id="getMealFoods" resultType="com.nt.tracker.domain.po.MealFood" parameterType="map">
+        SELECT
+            f.name,
+            fi.weight,
+            f.calories_per_100g,
+            f.protein_per_100g,
+            f.fat_per_100g,
+            f.carbs_per_100g
+        FROM food_intake fi
+                 INNER JOIN food f ON fi.food_id = f.id
+        WHERE fi.user_id = #{userId}
+          AND fi.meal_type = #{mealType}
+          AND fi.intake_date = #{date}
+    </select>
+
+
 </mapper>

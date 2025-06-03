@@ -69,5 +69,10 @@ public class FoodController {
         return Result.success(foods);
     }
 
+    @GetMapping("/meal")
+    public Result getMealInfo(@RequestParam int mealType, @RequestParam LocalDate date) {
+        return foodService.getMealInfo(mealType, date);
+    }
+
 
 }

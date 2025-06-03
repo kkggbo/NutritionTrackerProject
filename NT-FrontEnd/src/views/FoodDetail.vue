@@ -83,7 +83,6 @@ const actualCarbs = computed(() => ((food.value.carbsPer100g || 0) * weight.valu
 import {intakeSingleFoodService} from '@/api/food'
 const addFood = async() => {
     let result =await intakeSingleFoodService(mealType.value, foodId, weight.value)
-    console.log(result)
     if (result.code === 1) {
         ElMessage.success(`已添加 ${weight.value}g 的 ${food.value.name} 到这一餐`)
     }

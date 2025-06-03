@@ -88,6 +88,10 @@ const onClick = (id, mealType) => {
     }
   )
 }
+
+const goBack = () => {
+    router.back()
+}
 </script>
 
 <style scoped>

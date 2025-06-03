@@ -24,4 +24,6 @@ public interface FoodService {
     Result<FoodVO> getFoodDetail(Long foodId);
 
     List<FoodVO> getFoods(int page, int size, String name);
+
+    Result getMealInfo(int mealType, LocalDate date);
 }

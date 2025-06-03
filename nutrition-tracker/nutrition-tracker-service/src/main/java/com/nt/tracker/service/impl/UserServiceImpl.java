@@ -4,6 +4,7 @@ import com.nt.tracker.common.Result;
 import com.nt.tracker.domain.dto.UserDTO;
 import com.nt.tracker.domain.dto.UserProfile;
 import com.nt.tracker.domain.dto.UserProfileDTO;
+import com.nt.tracker.domain.po.IntakePO;
 import com.nt.tracker.domain.vo.DiaryVO;
 import com.nt.tracker.mapper.FoodMapper;
 import com.nt.tracker.mapper.UserMapper;
@@ -14,9 +15,12 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
+import java.util.stream.Stream;
 
 import static com.nt.tracker.common.Constants.*;
 
@@ -99,23 +103,71 @@ public class UserServiceImpl implements UserService {
         int goalFat = (int) Math.round(goalCalories * 0.3 / 9);     //  脂肪供能30%，每克9卡
 
 
-        // TODO 获取用户今日每餐已摄入的食物信息
+        // 获取用户今日每餐已摄入的食物信息
+        List<IntakePO> todayIntakeDetails = foodMapper.getIntakesByIdAndDate(userId, LocalDate.now());
+        if (todayIntakeDetails == null) {
+            todayIntakeDetails = new ArrayList<>();
+        }
 
-        // TODO 计算今日各营养物总摄入量
+        // 计算今日各营养物总摄入量
+        // 声明Meal对象
+        DiaryVO.Meal breakFast = new DiaryVO.Meal(MEAL_BREAKFAST, 0);
+        DiaryVO.Meal lunch = new DiaryVO.Meal(MEAL_LUNCH, 0);
+        DiaryVO.Meal  dinner = new DiaryVO.Meal(MEAL_DINNER, 0);
+        DiaryVO.Meal snack = new DiaryVO.Meal(MEAL_SNACK, 0);
 
-        // TODO 把数据放入diary对象中
+        int  totalCalories = 0;
+        int realCarb = 0;
+        int realProtein = 0;
+        int realFat = 0;
+
+        // 遍历todayIntakeDetails计算进入摄入的总热量、总碳水、总蛋白质、总脂肪含量和每一餐的总热量
+         for (IntakePO intake : todayIntakeDetails) {
+             switch (intake.getMealType()) {
+                 case MEAL_BREAKFAST:
+                     breakFast.setCalories(breakFast.getCalories() + calculateWeight(intake.getCaloriesPer100g(), intake.getWeight()));
+                     break;
+                 case  MEAL_LUNCH:
+                     lunch.setCalories(lunch.getCalories() + calculateWeight(intake.getCaloriesPer100g(), intake.getWeight()));
+                     break;
+                 case MEAL_DINNER:
+                     dinner.setCalories(dinner.getCalories() + calculateWeight(intake.getCaloriesPer100g(), intake.getWeight()));
+                     break;
+                 case MEAL_SNACK:
+                     snack.setCalories(snack.getCalories() + calculateWeight(intake.getCaloriesPer100g(), intake.getWeight()));
+                     break;
+                 default:
+                     log.warn("Unknown mealType: " + intake.getMealType());
+                     break;
+             }
+
+             totalCalories  += (calculateWeight(intake.getCaloriesPer100g(), intake.getWeight()));
+             realCarb       += calculateWeight(intake.getCarbsPer100g(), intake.getWeight());
+             realProtein    += calculateWeight(intake.getProteinPer100g(), intake.getWeight());
+             realFat        += calculateWeight(intake.getFatPer100g(), intake.getWeight());
+         }
+
+
+        // 把数据放入diary对象中
         diary.setGoalCalories(goalCalories);
+        diary.setTotalCalories(totalCalories);
         List<DiaryVO.Macro> macros = Arrays.asList(
-                new DiaryVO.Macro(MACRO_CARBOHYDRATE, 0, goalCarb),
-                new DiaryVO.Macro(MACRO_PROTEIN, 0, goalProtein),
-                new DiaryVO.Macro(MACRO_FAT, 0, goalFat)
+                new DiaryVO.Macro(MACRO_CARBOHYDRATE, realCarb, goalCarb),
+                new DiaryVO.Macro(MACRO_PROTEIN, realProtein, goalProtein),
+                new DiaryVO.Macro(MACRO_FAT, realFat, goalFat)
         );
         diary.setMacros(macros);
 
         List<DiaryVO.Meal> meals = new ArrayList<>();
+        Collections.addAll(meals, breakFast, lunch, dinner, snack);
         diary.setMeals(meals);
 
+        //  返回数据
         return Result.success(diary);
+    }
+
+    public static int calculateWeight(Double weightPer100g, Double weight){
+        return (int) Math.round(weightPer100g * weight / 100.0);
     }
 
     private UserDTO getUserById(Long id) {
@@ -123,3 +175,4 @@ public class UserServiceImpl implements UserService {
     }
 
 }
+

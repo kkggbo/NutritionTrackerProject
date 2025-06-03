@@ -4,8 +4,8 @@
 import axios from 'axios';
 import { ElMessage } from 'element-plus'
 import { useTokenStore } from '@/stores/token.js'
+import router from '@/router'
 //定义一个变量,记录公共的前缀  ,  baseURL
-// const baseURL = 'http://localhost:8080';
 const baseURL = '/api';
 const instance = axios.create({baseURL})
 
@@ -17,6 +17,10 @@ instance.interceptors.response.use(
         if(result.data.code===1){
             return result.data;
         } else {
+            if(result.data.code===401){
+                // 跳转到登录页面
+                router.push('/login')
+            }
             ElMessage.error(result.data.msg?result.data.msg:'操作失败');
             return Promise.reject(result.data);
         }

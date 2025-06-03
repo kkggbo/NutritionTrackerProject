@@ -4,6 +4,8 @@ import com.github.pagehelper.Page;
 import com.nt.tracker.domain.dto.FoodDTO;
 import com.nt.tracker.domain.dto.IntakeDTO;
 import com.nt.tracker.domain.dto.UserDTO;
+import com.nt.tracker.domain.po.IntakePO;
+import com.nt.tracker.domain.po.MealFood;
 import com.nt.tracker.domain.vo.FoodVO;
 import org.apache.ibatis.annotations.Insert;
 import org.apache.ibatis.annotations.Mapper;
@@ -30,8 +32,8 @@ public interface FoodMapper {
     @Select("select * from food where id = #{foodId}")
     FoodVO getFoodById(Long foodId);
 
-    @Select("select * from food_intake where user_id = #{userId} and intake_date = #{date}")
-    List<IntakeDTO> getIntakesByIdAndDate(Long userId, LocalDate date);
+
+    List<IntakePO> getIntakesByIdAndDate(Long userId, LocalDate date);
 
     /**
      * 根据名称查询食物
@@ -39,4 +41,6 @@ public interface FoodMapper {
      * @return
      */
     Page<FoodVO> foodQuery(String name);
+
+    List<MealFood> getMealFoods(Long userId, int mealType, LocalDate date);
 }

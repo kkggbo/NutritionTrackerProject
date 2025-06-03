@@ -26,3 +26,15 @@ export function intakeSingleFoodService(mealType, foodId, weight) {
   })
 }
 
+export function fetchMealService(mealType, date) {
+  
+  return request({
+    url: '/food/meal',
+    method: 'get',
+    params: {
+      mealType,
+      date
+    }
+  })
+}
+

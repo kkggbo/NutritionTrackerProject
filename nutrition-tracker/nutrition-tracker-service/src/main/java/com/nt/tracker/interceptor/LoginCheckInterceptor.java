@@ -45,7 +45,8 @@ public class LoginCheckInterceptor implements HandlerInterceptor {
             } catch (Exception e) {
                 // 令牌解析失败，返回错误结果（令牌无效）
                 // e.printStackTrace();
-                Result<Object> result = Result.error("登录token无效或已过期");
+                Result<Object> result = Result.error("请重新登录");
+                result.setCode(401);
                 ObjectMapper mapper = new ObjectMapper();
                 String json = mapper.writeValueAsString(result);
                 response.getWriter().write(json);
