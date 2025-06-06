@@ -6,6 +6,7 @@ import java.io.Serializable;
 
 @Data
 public class MealFood implements Serializable {
+    private Long id;
     private String name;
     private Double weight;
     private Double caloriesPer100g;

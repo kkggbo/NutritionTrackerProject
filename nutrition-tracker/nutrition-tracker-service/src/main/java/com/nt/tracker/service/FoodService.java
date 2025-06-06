@@ -3,6 +3,7 @@ package com.nt.tracker.service;
 import com.nt.tracker.common.Result;
 import com.nt.tracker.domain.dto.FoodDTO;
 import com.nt.tracker.domain.dto.IntakeDTO;
+import com.nt.tracker.domain.dto.MealUpdateRequestDTO;
 import com.nt.tracker.domain.dto.UserDTO;
 import com.nt.tracker.domain.vo.FoodVO;
 import com.nt.tracker.domain.vo.IntakeDetailVO;
@@ -26,4 +27,6 @@ public interface FoodService {
     List<FoodVO> getFoods(int page, int size, String name);
 
     Result getMealInfo(int mealType, LocalDate date);
+
+    Result updateMealFoods(MealUpdateRequestDTO request);
 }

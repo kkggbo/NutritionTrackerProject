@@ -10,6 +10,8 @@ import com.nt.tracker.domain.vo.FoodVO;
 import org.apache.ibatis.annotations.Insert;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Select;
+import org.apache.ibatis.annotations.Update;
+import org.springframework.web.bind.annotation.GetMapping;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -43,4 +45,15 @@ public interface FoodMapper {
     Page<FoodVO> foodQuery(String name);
 
     List<MealFood> getMealFoods(Long userId, int mealType, LocalDate date);
+
+    @Update("update food_intake set weight = #{food.weight} where user_id = #{userId} and meal_type = #{mealType} and intake_date = #{date} and food_id = #{food.id}")
+    void updateMealFoods(Long userId, int mealType, LocalDate date, MealFood food);
+
+    void deleteMealFoods(Long userId, int mealType, LocalDate date, List<Long> deletedFoodIds);
+
+    @Select("select * from food_intake where user_id = #{userId} and meal_type = #{mealType} and intake_date = #{date} and food_id = #{foodId}")
+    IntakeDTO getIntakeFood(Long userId, Integer mealType, LocalDate date, Long foodId);
+
+    @Update("update food_intake set weight = #{weight} where user_id = #{userId} and meal_type = #{mealType} and intake_date = #{date} and food_id = #{foodId}")
+    void updateMealFoodWeight(Long userId, Integer mealType, LocalDate date, Long foodId, Double weight);
 }

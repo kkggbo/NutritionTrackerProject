@@ -49,6 +49,7 @@
 
     <select id="getMealFoods" resultType="com.nt.tracker.domain.po.MealFood" parameterType="map">
         SELECT
+            f.id,
             f.name,
             fi.weight,
             f.calories_per_100g,
@@ -62,5 +63,15 @@
           AND fi.intake_date = #{date}
     </select>
 
+    <delete id="deleteMealFoods" parameterType="map">
+        DELETE FROM food_intake
+        WHERE user_id = #{userId}
+        AND meal_type = #{mealType}
+        AND intake_date = #{date}
+        AND food_id IN
+        <foreach collection="deletedFoodIds" item="id" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
 
 </mapper>

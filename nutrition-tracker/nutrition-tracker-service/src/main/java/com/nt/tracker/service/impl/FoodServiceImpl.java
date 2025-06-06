@@ -4,6 +4,7 @@ import com.github.pagehelper.PageHelper;
 import com.nt.tracker.common.Result;
 import com.nt.tracker.domain.dto.FoodDTO;
 import com.nt.tracker.domain.dto.IntakeDTO;
+import com.nt.tracker.domain.dto.MealUpdateRequestDTO;
 import com.nt.tracker.domain.dto.UserDTO;
 import com.nt.tracker.domain.po.MealFood;
 import com.nt.tracker.domain.vo.FoodVO;
@@ -16,11 +17,13 @@ import com.nt.tracker.service.FoodService;
 import com.nt.tracker.utils.UserThreadLocal;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cglib.core.Local;
 import org.springframework.dao.DuplicateKeyException;
 import org.springframework.stereotype.Service;
 import org.springframework.util.DigestUtils;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -65,10 +68,29 @@ public class FoodServiceImpl implements FoodService {
      */
     @Override
     public Result<String> intake(IntakeDTO intakeInfo) {
+        // 检查参数是否合法
+        if (intakeInfo == null || intakeInfo.getWeight() <= 0) {
+            return Result.error("参数错误：食物信息不能为空且重量必须大于0");
+        }
+
+        // 获取用户Id和日期
         Long userId = UserThreadLocal.getUserId();
+        LocalDate today = LocalDate.now();
+
+        // 检查食物是否存在
         if (foodMapper.getFoodById(intakeInfo.getFoodId()) == null) {
             return Result.error("食物不存在");
         }
+
+        // 检查用户是否已经添加过该食物
+        IntakeDTO intakeFood = foodMapper.getIntakeFood(userId, intakeInfo.getMealType(), today, intakeInfo.getFoodId());
+        if ( intakeFood != null) {
+            // 用户已添加过食物，更新重量
+            foodMapper.updateMealFoodWeight(userId, intakeInfo.getMealType(), today, intakeInfo.getFoodId(), intakeInfo.getWeight()+ intakeFood.getWeight());
+            return Result.success();
+        }
+
+        // 添加新食物
         foodMapper.addIntake(intakeInfo, userId);
         return Result.success();
     }
@@ -141,5 +163,38 @@ public class FoodServiceImpl implements FoodService {
 
         // 返回结果
         return Result.success(foods);
+    }
+
+    @Override
+    public Result updateMealFoods(MealUpdateRequestDTO request) {
+        LocalDate date = request.getDate();
+        int mealType = request.getMealType();
+        Long userId = UserThreadLocal.getUserId();
+
+        // 获取需要被修改和删除的食物列表
+        List<MealFood> foods = request.getFoods();
+        List<MealFood> foodsToUpdate = new ArrayList<>();
+        List<Long> deletedFoodIds = new ArrayList<>();
+
+        for (MealFood food : foods) {
+            if (food.getWeight() != 0) {
+                foodsToUpdate.add(food);
+            } else {
+                deletedFoodIds.add(food.getId());
+            }
+        }
+
+        // 批量修改、删除数据
+        if (!foodsToUpdate.isEmpty()) {
+            for (MealFood food : foodsToUpdate){
+                foodMapper.updateMealFoods(userId, mealType, date, food);
+            }
+        }
+
+        if (!deletedFoodIds.isEmpty()) {
+            foodMapper.deleteMealFoods(userId, mealType, date, deletedFoodIds);
+        }
+
+        return Result.success();
     }
 }

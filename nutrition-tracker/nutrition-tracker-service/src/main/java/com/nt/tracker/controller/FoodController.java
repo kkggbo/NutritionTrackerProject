@@ -3,6 +3,7 @@ package com.nt.tracker.controller;
 import com.nt.tracker.common.Result;
 import com.nt.tracker.domain.dto.FoodDTO;
 import com.nt.tracker.domain.dto.IntakeDTO;
+import com.nt.tracker.domain.dto.MealUpdateRequestDTO;
 import com.nt.tracker.domain.dto.UserProfileDTO;
 import com.nt.tracker.domain.vo.FoodVO;
 import com.nt.tracker.domain.vo.IntakeDetailVO;
@@ -69,10 +70,27 @@ public class FoodController {
         return Result.success(foods);
     }
 
+    /**
+     *  获取某天某餐食物列表
+     * @param mealType
+     * @param date
+     * @return
+     */
     @GetMapping("/meal")
     public Result getMealInfo(@RequestParam int mealType, @RequestParam LocalDate date) {
         return foodService.getMealInfo(mealType, date);
     }
+
+    /**
+     *  更新某天某餐食物列表
+     * @param request
+     * @return
+     */
+    @PostMapping("/meal/update")
+    public Result updateMealFoods(@RequestBody MealUpdateRequestDTO request) {
+        return foodService.updateMealFoods(request);
+    }
+
 
 
 }

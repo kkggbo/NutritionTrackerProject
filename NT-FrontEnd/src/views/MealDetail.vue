@@ -39,7 +39,7 @@
 
         <!-- 页面底部按钮区域 -->
         <div class="footer-buttons">
-            <el-button type="primary" @click="saveChanges">保存更改</el-button>
+            <el-button type="primary" @click="submitChanges">保存更改</el-button>
             <el-button type="primary" @click="goBack">返回</el-button>
         </div>
 
@@ -51,14 +51,21 @@ import { ref, watch } from 'vue';
 import { useRouter } from 'vue-router';
 import { Delete, Plus } from '@element-plus/icons-vue'
 import { useRoute } from 'vue-router'
+import { ElMessage } from 'element-plus'
 const route = useRoute();
 
 const router = useRouter();
 
 const mealType = ref(route.query.mealType || '')
 
-// 食物列表
+// 当前显示的食物列表
 const foods = ref('');
+// 初始化时克隆的原始列表，用于检查哪些食物需要被修改
+const originalFoods = ref([])
+// 被删除的id集合
+const deletedFoodIds = ref([]) 
+
+const today = new Date().toISOString().split('T')[0];
 
 const totalCalories = ref(0);
 const totalCarbs = ref(0);
@@ -92,12 +99,15 @@ const updateTotal = () => {
 };
 
 const removeFood = (index) => {
-    foods.value.splice(index, 1);
+    const removed = foods.value.splice(index, 1)[0]; // 删除并获取被删元素
+    if (removed && removed.id) {
+        deletedFoodIds.value.push({ id: removed.id });
+    }
     updateTotal();
 };
 
 const goToAddFood = () => {
-    router.push({ name: 'FoodList', query: { mealType: mealType.value } });
+    router.push({ path: '/foodList', query: { mealType: mealType.value } });
 };
 
 watch(foods, updateTotal, { deep: true });
@@ -106,17 +116,48 @@ const goBack = () => {
     router.back()
 }
 
-import { fetchMealService } from '@/api/food'
+import { fetchMealService, updateMealService } from '@/api/food'
 const fetchMealData = async () => {
     try {
-        const today = new Date().toISOString().split('T')[0];
         const res = await fetchMealService(mealType.value, today);
-        console.log(res.data);
         foods.value = res.data;
+        originalFoods.value = JSON.parse(JSON.stringify(res.data)) // 深拷贝
     } catch (err) {
         ElMessage.warning("获取数据失败");
     }
 };
+
+// 获取被修改食物的内容
+const getModifiedFoods = () => {
+  // 1. 找出 weight 被修改的食物
+  const modified = foods.value.filter(curr => {
+    const orig = originalFoods.value.find(o => o.id === curr.id)
+    return orig && orig.weight !== curr.weight
+  }).map(item => ({
+    id: item.id,
+    weight: item.weight
+  }))
+
+  // 2. 把被删除的食物添加进去（weight = 0）
+const deleted = deletedFoodIds.value.map(item => ({
+  id: item.id,
+  weight: 0
+}))
+
+
+  // 3. 合并两个数组
+  return [...modified, ...deleted]
+}
+
+
+// 提交更改
+const submitChanges = () => {
+  const modified = getModifiedFoods()
+  updateMealService(mealType.value, today, modified)
+  ElMessage.success('修改成功')
+}
+
+
 fetchMealData()
 updateTotal()
 </script>

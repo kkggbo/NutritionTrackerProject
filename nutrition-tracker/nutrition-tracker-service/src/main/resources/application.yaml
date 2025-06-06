@@ -4,7 +4,7 @@ spring:
   application:
     name: tracker-service # 配置服务名称
   datasource:
-    url: jdbc:mysql://localhost:3306/nutrition_db?useSSL=false&useUnicode=true&characterEncoding=UTF-8&serverTimezone=UTC #  数据库连接地址
+    url: jdbc:mysql://localhost:3306/nutrition_db?useSSL=false&useUnicode=true&characterEncoding=UTF-8&serverTimezone=UTC&allowPublicKeyRetrieval=true #  数据库连接地址
     driver-class-name: com.mysql.cj.jdbc.Driver # 数据库驱动
     username: root # 数据库用户名
     password: 1234 # 数据库密码

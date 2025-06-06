@@ -38,3 +38,16 @@ export function fetchMealService(mealType, date) {
   })
 }
 
+export function updateMealService(mealType, date, foods) {
+  
+  return request({
+    url: '/food/meal/update',
+    method: 'post',
+    data: {
+      mealType,
+      date,
+      foods
+    }
+  })
+}
+
