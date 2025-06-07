@@ -9,6 +9,7 @@ import NutrientDiary from '@/views/NutrientDiary.vue'
 import FoodDetail from '@/views/FoodDetail.vue'
 import FoodList from '@/views/FoodList.vue'
 import MealDetail from '@/views/MealDetail.vue'
+import AddFood from '@/views/AddFood.vue'
 
 
 // 定义路由关系
@@ -23,7 +24,8 @@ const routes = [
         component: () => import('@/views/FoodDetail.vue')
     },
     { path: '/foodList', component: FoodList},
-    { path: '/mealDetail', component: MealDetail }
+    { path: '/mealDetail', component: MealDetail },
+    { path: '/addFood', component: AddFood }
 ]
 
 // 创建路由器

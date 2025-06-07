@@ -74,4 +74,38 @@
         </foreach>
     </delete>
 
+    <select id="getFavoriteFoodsById" resultType="com.nt.tracker.domain.vo.FoodVO">
+        SELECT f.id,
+        f.name,
+        f.calories_per_100g,
+        f.protein_per_100g,
+        f.fat_per_100g,
+        f.carbs_per_100g
+        FROM food f
+        WHERE f.id IN (
+        SELECT food_id FROM food_favorite WHERE user_id = #{userId}
+        )
+    </select>
+
+    <select id="getRecentFoodList" resultType="com.nt.tracker.domain.vo.FoodVO">
+        SELECT f.id,
+               f.name,
+               f.calories_per_100g,
+               f.protein_per_100g,
+               f.fat_per_100g,
+               f.carbs_per_100g
+        FROM (
+                 SELECT food_id, MAX(intake_date) AS last_intake
+                 FROM food_intake
+                 WHERE user_id = #{userId}
+                 GROUP BY food_id
+                 ORDER BY last_intake DESC
+                 LIMIT #{limit}
+             ) AS recent
+                 JOIN food f ON recent.food_id = f.id
+        ORDER BY recent.last_intake DESC
+    </select>
+
+
+
 </mapper>

@@ -41,9 +41,17 @@
         <!-- 固定底部添加按钮 -->
         <div class="fixed-bottom">
             <div class="btn-wrapper">
-                <el-button type="primary" class="add-button" @click="addFood">
+                <el-button type="primary" class="add-button add-main" @click="addFood">
                     添加
                 </el-button>
+                  <el-button
+    :icon="isFavorite ? Star : StarFilled"
+    :type="isFavorite ? 'danger' : 'info'"
+    class="add-button add-favorite favorite-button"
+    @click="toggleFavorite"
+  >
+    {{ isFavorite ? '已收藏' : '收藏' }}
+  </el-button>
             </div>
         </div>
     </div>
@@ -55,6 +63,11 @@ import { useRouter } from 'vue-router'
 import { ArrowLeft } from '@element-plus/icons-vue'
 import { ref, computed, onMounted } from 'vue'
 import { ElMessage } from 'element-plus'
+import { Star, StarFilled } from '@element-plus/icons-vue'
+
+// 收藏状态
+const isFavorite = ref(false) 
+
 // 从url获取食物id
 const route = useRoute()
 const router = useRouter()
@@ -93,6 +106,8 @@ const goBack = () => {
 }
 
 import { foodDetailService } from '@/api/food'
+
+// 获取食物数据
 const fetchFoodData = async () => {
   try {
     const res = await foodDetailService(foodId); // 调用服务方法
@@ -101,7 +116,38 @@ const fetchFoodData = async () => {
     ElMessage.warning("获取数据失败");
   }
 };
-onMounted(fetchFoodData)
+
+import { checkFavoriteStatusService } from '@/api/food'
+// 获取收藏状态
+const fetchFavoriteStatus = async () => {
+  try {
+    const res = await checkFavoriteStatusService(foodId)
+    if (res.code === 1) {
+      isFavorite.value = res.data.favorite // true 或 false
+    }
+  } catch (e) {
+    ElMessage.warning('收藏状态获取失败')
+  }
+}
+
+import { addOrRemoveFavoriteService } from '@/api/food'
+// 修改收藏状态
+const toggleFavorite = async () => {
+  try {
+    const result = await addOrRemoveFavoriteService({
+      foodId: foodId,
+      favorite: !isFavorite.value, // 当前状态取反
+    })
+    if (result.code === 1) {
+      isFavorite.value = !isFavorite.value
+      ElMessage.success(isFavorite.value ? '收藏成功' : '取消收藏成功')
+    }
+  } catch (e) {
+    ElMessage.error('操作失败')
+  }
+}
+
+onMounted(fetchFoodData(), fetchFavoriteStatus(foodId))
 
 </script>
 
@@ -193,6 +239,10 @@ onMounted(fetchFoodData)
     margin: 0 auto;
     display: flex;
     justify-content: center;
+    align-items: center;
+    gap: 8px;
+    margin-left: 16px;
+    margin-right: 16px;
 }
 
 .add-button {
@@ -200,7 +250,6 @@ onMounted(fetchFoodData)
     border-radius: 10px;
     width: 85%;
     height: 56px;
-    background-color: #234bff9d;
     color: white;
 }
 
@@ -208,5 +257,22 @@ onMounted(fetchFoodData)
     width: 100%;
     margin: 0 auto;
     height: 48px;
+}
+
+.add-main {
+  width: 85%;  /* 主按钮宽 */
+  background-color: #2f55ff9d;
+  color: white;
+}
+
+.add-favorite {
+  width: 15%; /* 收藏按钮较窄 */
+  min-width: 48px; /* 设置最小宽度避免太小 */
+  padding: 0;
+
+}
+
+.favorite-button :deep(.el-icon svg) {
+  fill: white !important;
 }
 </style>

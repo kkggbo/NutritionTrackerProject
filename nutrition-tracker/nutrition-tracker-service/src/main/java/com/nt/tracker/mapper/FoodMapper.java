@@ -7,10 +7,7 @@ import com.nt.tracker.domain.dto.UserDTO;
 import com.nt.tracker.domain.po.IntakePO;
 import com.nt.tracker.domain.po.MealFood;
 import com.nt.tracker.domain.vo.FoodVO;
-import org.apache.ibatis.annotations.Insert;
-import org.apache.ibatis.annotations.Mapper;
-import org.apache.ibatis.annotations.Select;
-import org.apache.ibatis.annotations.Update;
+import org.apache.ibatis.annotations.*;
 import org.springframework.web.bind.annotation.GetMapping;
 
 import java.time.LocalDate;
@@ -56,4 +53,17 @@ public interface FoodMapper {
 
     @Update("update food_intake set weight = #{weight} where user_id = #{userId} and meal_type = #{mealType} and intake_date = #{date} and food_id = #{foodId}")
     void updateMealFoodWeight(Long userId, Integer mealType, LocalDate date, Long foodId, Double weight);
+
+    @Insert("INSERT IGNORE INTO food_favorite (user_id, food_id, created_time) VALUES (#{userId}, #{foodId}, NOW())")
+    void addFavorite(Long userId, Long foodId);
+
+    @Delete("DELETE FROM food_favorite WHERE user_id = #{userId} AND food_id = #{foodId}")
+    void removeFavorite(Long userId, Long foodId);
+
+    @Select("SELECT EXISTS (SELECT 1 FROM food_favorite WHERE user_id = #{userId} AND food_id = #{foodId})")
+    boolean getFavoriteStatus(Long userId, Long foodId);
+
+    List<FoodVO> getFavoriteFoodsById(Long userId);
+
+    List<FoodVO> getRecentFoodList(Long userId, Integer limit);
 }

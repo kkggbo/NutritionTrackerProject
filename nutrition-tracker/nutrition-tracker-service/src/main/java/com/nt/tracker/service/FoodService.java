@@ -1,10 +1,7 @@
 package com.nt.tracker.service;
 
 import com.nt.tracker.common.Result;
-import com.nt.tracker.domain.dto.FoodDTO;
-import com.nt.tracker.domain.dto.IntakeDTO;
-import com.nt.tracker.domain.dto.MealUpdateRequestDTO;
-import com.nt.tracker.domain.dto.UserDTO;
+import com.nt.tracker.domain.dto.*;
 import com.nt.tracker.domain.vo.FoodVO;
 import com.nt.tracker.domain.vo.IntakeDetailVO;
 
@@ -29,4 +26,12 @@ public interface FoodService {
     Result getMealInfo(int mealType, LocalDate date);
 
     Result updateMealFoods(MealUpdateRequestDTO request);
+
+    Result addOrRemoveFavoriteFood(FavoriteDTO favorite);
+
+    Result getFavoriteStatus(Long foodId);
+
+    List<FoodVO> getFavoriteFoodList(Integer page, Integer size);
+
+    List<FoodVO> getRecentFoodList(Integer limit);
 }

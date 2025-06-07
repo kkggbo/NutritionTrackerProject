@@ -18,11 +18,36 @@ export function fetchFoodsService(page = 1, size = 10, name = '') {
   })
 }
 
+export function fetchFavoritesService(page = 1, size = 10) {
+  return request({
+    url: '/food/favorite/list',
+    method: 'get',
+    params: { page, size}
+  })
+}
+
+export function fetchRecentService(limit = 20) {
+  return request({
+    url: '/food/recent/list',
+    method: 'get',
+    params: { limit }
+  })
+}
+
+
 export function intakeSingleFoodService(mealType, foodId, weight) {
   return request({
     url: '/food/intake',
     method: 'post',
     data: { mealType, foodId, weight }
+  })
+}
+
+export function addFoodService(food) {
+  return request({
+    url: '/food/add',
+    method: 'post',
+    data: food
   })
 }
 
@@ -48,6 +73,22 @@ export function updateMealService(mealType, date, foods) {
       date,
       foods
     }
+  })
+}
+
+export function checkFavoriteStatusService(foodId) {
+  
+  return request({
+    url: `/food/favorite/status/${foodId}`,
+    method: 'get',
+  })
+}
+
+export function addOrRemoveFavoriteService(data) {
+  return request({
+    url: '/food/favorite',
+    method: 'post',
+    data,
   })
 }
 

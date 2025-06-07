@@ -1,10 +1,7 @@
 package com.nt.tracker.controller;
 
 import com.nt.tracker.common.Result;
-import com.nt.tracker.domain.dto.FoodDTO;
-import com.nt.tracker.domain.dto.IntakeDTO;
-import com.nt.tracker.domain.dto.MealUpdateRequestDTO;
-import com.nt.tracker.domain.dto.UserProfileDTO;
+import com.nt.tracker.domain.dto.*;
 import com.nt.tracker.domain.vo.FoodVO;
 import com.nt.tracker.domain.vo.IntakeDetailVO;
 import com.nt.tracker.service.FoodService;
@@ -89,6 +86,32 @@ public class FoodController {
     @PostMapping("/meal/update")
     public Result updateMealFoods(@RequestBody MealUpdateRequestDTO request) {
         return foodService.updateMealFoods(request);
+    }
+
+    @PostMapping("/favorite")
+    public Result addOrRemoveFavoriteFood(@RequestBody FavoriteDTO favorite) {
+        return foodService.addOrRemoveFavoriteFood(favorite);
+    }
+
+    @GetMapping("/favorite/status/{foodId}")
+    public Result getFavoriteStatus(@PathVariable Long foodId) {
+        return foodService.getFavoriteStatus(foodId);
+    }
+
+    @GetMapping("/favorite/list")
+    public Result getFavoriteFoodList(
+            @RequestParam(defaultValue = "1") Integer page,
+            @RequestParam(defaultValue = "10") Integer size){
+        List<FoodVO> foods = foodService.getFavoriteFoodList(page, size);
+        return Result.success(foods);
+    }
+
+    @GetMapping("/recent/list")
+    public Result getRecentFoodList(
+            @RequestParam(defaultValue = "20") Integer limit) {
+
+        List<FoodVO> foods = foodService.getRecentFoodList(limit);
+        return Result.success(foods);
     }
 
 

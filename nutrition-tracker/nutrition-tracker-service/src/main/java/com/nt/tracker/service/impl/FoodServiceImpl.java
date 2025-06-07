@@ -2,11 +2,9 @@ package com.nt.tracker.service.impl;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import com.nt.tracker.common.Result;
-import com.nt.tracker.domain.dto.FoodDTO;
-import com.nt.tracker.domain.dto.IntakeDTO;
-import com.nt.tracker.domain.dto.MealUpdateRequestDTO;
-import com.nt.tracker.domain.dto.UserDTO;
+import com.nt.tracker.domain.dto.*;
 import com.nt.tracker.domain.po.MealFood;
+import com.nt.tracker.domain.vo.FavoriteVO;
 import com.nt.tracker.domain.vo.FoodVO;
 import com.nt.tracker.domain.vo.IntakeDetailVO;
 import com.nt.tracker.mapper.AuthMapper;
@@ -46,6 +44,11 @@ public class FoodServiceImpl implements FoodService {
         if (foodMapper.getFoodByName(food.getName()) != null) {
             return Result.error("食物已存在");
         }
+
+        // 获取用户id
+        Long userId = UserThreadLocal.getUserId();
+        food.setUserId(userId);
+
         foodMapper.addFood(food);
         return Result.success();
     }
@@ -196,5 +199,56 @@ public class FoodServiceImpl implements FoodService {
         }
 
         return Result.success();
+    }
+
+    @Override
+    public Result addOrRemoveFavoriteFood(FavoriteDTO favorite) {
+
+        Long userId = UserThreadLocal.getUserId();
+        Long foodId = favorite.getFoodId();
+
+        // 判断是收藏还是取消收藏
+        if (favorite.getFavorite()) {
+            try {
+                // 直接尝试插入新数据
+                foodMapper.addFavorite(userId, foodId);
+            } catch (DuplicateKeyException e) {
+                // 出现重复数据，说明已收藏，忽略异常
+            }
+        } else {
+            // 取消收藏
+            foodMapper.removeFavorite(userId, foodId);
+        }
+        return Result.success();
+    }
+
+    @Override
+    public Result getFavoriteStatus(Long foodId) {
+        Long userId = UserThreadLocal.getUserId();
+
+        // 查询数据库中是否有该食物的收藏记录并添加到返回的VO对象中
+        FavoriteVO favoriteVO = new FavoriteVO(foodMapper.getFavoriteStatus(userId, foodId));
+
+        return Result.success(favoriteVO);
+    }
+
+    @Override
+    public List<FoodVO> getFavoriteFoodList(Integer page, Integer size) {
+
+        Long userId = UserThreadLocal.getUserId();
+
+        // 开始分页查询
+        PageHelper.startPage(page, size);
+
+        // 根据名称查询食物
+        return foodMapper.getFavoriteFoodsById(userId);
+    }
+
+    @Override
+    public List<FoodVO> getRecentFoodList(Integer limit) {
+
+        Long userId = UserThreadLocal.getUserId();
+        // 根据limit查询最近食用的食物
+        return foodMapper.getRecentFoodList(userId, limit);
     }
 }
