@@ -114,6 +114,11 @@ public class FoodController {
         return Result.success(foods);
     }
 
+    @GetMapping("/tag/list")
+    public Result getTagList(@RequestParam Integer foodId) {
+        return Result.success(foodService.getTagsByFoodId(foodId));
+    }
+
 
 
 }

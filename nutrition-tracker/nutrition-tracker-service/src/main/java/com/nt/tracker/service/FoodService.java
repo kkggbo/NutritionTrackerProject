@@ -34,4 +34,8 @@ public interface FoodService {
     List<FoodVO> getFavoriteFoodList(Integer page, Integer size);
 
     List<FoodVO> getRecentFoodList(Integer limit);
+
+    Object getTagsByFoodId(Integer foodId);
+
+    public void addTags(FoodDTO food);
 }

@@ -20,7 +20,7 @@
     </div>
   </el-form-item>
 
-  <div class="input-tip">请输入营养成分</div>
+  <div class="input-tip">请输入每百克营养成分</div>
 
   <el-form-item label="热量 (kcal)" prop="caloriesPer100g">
     <el-input-number

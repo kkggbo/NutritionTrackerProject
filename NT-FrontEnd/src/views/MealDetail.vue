@@ -65,7 +65,13 @@ const originalFoods = ref([])
 // 被删除的id集合
 const deletedFoodIds = ref([]) 
 
-const today = new Date().toISOString().split('T')[0];
+// 获取当前日期
+const today = new Date().toLocaleDateString('zh-CN', {
+  year: 'numeric',
+  month: '2-digit',
+  day: '2-digit'
+}).replace(/\//g, '-');
+
 
 const totalCalories = ref(0);
 const totalCarbs = ref(0);
@@ -120,6 +126,7 @@ import { fetchMealService, updateMealService } from '@/api/food'
 const fetchMealData = async () => {
     try {
         const res = await fetchMealService(mealType.value, today);
+        console.log(today);
         foods.value = res.data;
         originalFoods.value = JSON.parse(JSON.stringify(res.data)) // 深拷贝
     } catch (err) {

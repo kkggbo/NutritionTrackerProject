@@ -106,6 +106,22 @@
         ORDER BY recent.last_intake DESC
     </select>
 
+    <insert id="addTags">
+        INSERT INTO food_tag (food_id, tag_id)
+        VALUES
+        <foreach collection="tagIds" item="tagId" separator=",">
+            (#{id}, #{tagId})
+        </foreach>
+    </insert>
+
+    <select id="getTagsByFoodId" resultType="string">
+        SELECT t.name
+        FROM food_tag ft
+                 JOIN tag t ON ft.tag_id = t.id
+        WHERE ft.food_id = #{foodId}
+    </select>
+
+
 
 
 </mapper>

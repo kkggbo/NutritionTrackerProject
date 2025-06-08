@@ -21,6 +21,7 @@ public interface FoodMapper {
     FoodVO getFoodByName(String name);
 
     @Insert("insert into food (user_id, name, calories_per_100g, carbs_per_100g, protein_per_100g, fat_per_100g) values (#{userId}, #{name}, #{caloriesPer100g}, #{carbsPer100g}, #{proteinPer100g}, #{fatPer100g})")
+    @Options(useGeneratedKeys = true, keyProperty = "id")
     void addFood(FoodDTO food);
 
     @Select("select * from food where user_id = #{userId}")
@@ -66,4 +67,8 @@ public interface FoodMapper {
     List<FoodVO> getFavoriteFoodsById(Long userId);
 
     List<FoodVO> getRecentFoodList(Long userId, Integer limit);
+
+    void addTags(List<Integer> tagIds, Long id);
+
+    List<String> getTagsByFoodId(Integer foodId);
 }

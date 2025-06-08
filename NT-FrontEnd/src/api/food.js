@@ -92,3 +92,12 @@ export function addOrRemoveFavoriteService(data) {
   })
 }
 
+
+
+export function getFoodTagsService(foodId) {
+  return request({
+    url: '/food/tag/list',
+    method: 'get',
+    params: { foodId }
+  })
+}

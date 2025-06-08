@@ -1,60 +1,58 @@
 <template>
-    <div class="page-container">
-        <!-- 返回按钮 -->
-        <div class="goBack-wrapper">
-            <el-button type="primary" :icon="ArrowLeft" @click="goBack" class="goBack">
-                返回
-            </el-button>
-        </div>
-
-        <el-card class="food-card" shadow="hover">
-            <template #header>
-                <div class="card-header">食物详情</div>
-            </template>
-
-            <div class="info-item"><strong>食物名称：</strong>{{ food.name }}</div>
-            <div class="info-item"><strong>每 100g 热量：</strong>{{ food.caloriesPer100g }} kcal</div>
-            <div class="info-item last"><strong>每 100g 碳水：</strong>{{ food.carbsPer100g }} g</div>
-            <div class="info-item"><strong>每 100g 蛋白质：</strong>{{ food.proteinPer100g }} g</div>
-            <div class="info-item"><strong>每 100g 脂肪：</strong>{{ food.fatPer100g }} g</div>
-
-            <!-- TODO 标签区域 -->
-            <!-- <div class="tags-area">
-                <el-tag class="tag" type="success">高蛋白</el-tag>
-                <el-tag class="tag" type="warning">低脂肪</el-tag>
-            </div> -->
-
-            <el-form class="form-area" label-position="top">
-                <el-form-item label="请输入食用克数">
-                    <el-input v-model.number="weight" type="number" placeholder="如：100" />
-                </el-form-item>
-            </el-form>
-
-            <div class="nutrition-area">
-                <div><strong>实际热量：</strong>{{ actualCalories }} kcal</div>
-                <div><strong>蛋白质：</strong>{{ actualProtein }} g</div>
-                <div><strong>脂肪：</strong>{{ actualFat }} g</div>
-                <div><strong>碳水：</strong>{{ actualCarbs }} g</div>
-            </div>
-        </el-card>
-
-        <!-- 固定底部添加按钮 -->
-        <div class="fixed-bottom">
-            <div class="btn-wrapper">
-                <el-button type="primary" class="add-button add-main" @click="addFood">
-                    添加
-                </el-button>
-                  <el-button
-    :icon="isFavorite ? Star : StarFilled"
-    :type="isFavorite ? 'danger' : 'info'"
-    class="add-button add-favorite favorite-button"
-    @click="toggleFavorite"
-  >
-    {{ isFavorite ? '已收藏' : '收藏' }}
-  </el-button>
-            </div>
-        </div>
+  <div class="page-container">
+    <!-- 返回按钮 -->
+    <div class="goBack-wrapper">
+      <el-button type="primary" :icon="ArrowLeft" @click="goBack" class="goBack">
+        返回
+      </el-button>
     </div>
+
+    <el-card class="food-card" shadow="hover">
+      <template #header>
+        <div class="card-header">食物详情</div>
+      </template>
+
+      <div class="info-item"><strong>食物名称：</strong>{{ food.name }}</div>
+      <div class="info-item"><strong>每 100g 热量：</strong>{{ food.caloriesPer100g }} kcal</div>
+      <div class="info-item last"><strong>每 100g 碳水：</strong>{{ food.carbsPer100g }} g</div>
+      <div class="info-item"><strong>每 100g 蛋白质：</strong>{{ food.proteinPer100g }} g</div>
+      <div class="info-item"><strong>每 100g 脂肪：</strong>{{ food.fatPer100g }} g</div>
+
+      <!-- 标签区域 -->
+      <div class="tags-area">
+        <el-tag v-for="(tag, index) in tags" :key="index" class="tag" :type="getTagType(tag)">
+          {{ tag }}
+        </el-tag>
+      </div>
+
+
+      <el-form class="form-area" label-position="top">
+        <el-form-item label="请输入食用克数">
+          <el-input v-model.number="weight" type="number" placeholder="如：100" />
+        </el-form-item>
+      </el-form>
+
+      <div class="nutrition-area">
+        <div><strong>实际热量：</strong>{{ actualCalories }} kcal</div>
+        <div><strong>蛋白质：</strong>{{ actualProtein }} g</div>
+        <div><strong>脂肪：</strong>{{ actualFat }} g</div>
+        <div><strong>碳水：</strong>{{ actualCarbs }} g</div>
+      </div>
+    </el-card>
+
+    <!-- 固定底部添加按钮 -->
+    <div class="fixed-bottom">
+      <div class="btn-wrapper">
+        <el-button type="primary" class="add-button add-main" @click="addFood">
+          添加
+        </el-button>
+        <el-button :icon="isFavorite ? Star : StarFilled" :type="isFavorite ? 'danger' : 'info'"
+          class="add-button add-favorite favorite-button" @click="toggleFavorite">
+          {{ isFavorite ? '已收藏' : '收藏' }}
+        </el-button>
+      </div>
+    </div>
+  </div>
 </template>
 
 <script setup>
@@ -147,7 +145,43 @@ const toggleFavorite = async () => {
   }
 }
 
-onMounted(fetchFoodData(), fetchFavoriteStatus(foodId))
+const tags = ref([]) // 标签列表
+
+import { getFoodTagsService } from '@/api/food'
+
+// 获取标签
+const fetchTags = async () => {
+  try {
+    const res = await getFoodTagsService(foodId) // 应该返回一个字符串，如 "高蛋白,低脂肪"
+    if (res.code === 1 && res.data) {
+      tags.value = res.data.split(',') // 转为数组
+    }
+  } catch (e) {
+    ElMessage.warning('获取标签失败')
+  }
+}
+
+// 标签样式映射
+const getTagType = (tag) => {
+  switch (tag) {
+    case '高蛋白':
+    case '低脂肪':
+    case '低热量':  
+      return 'success'
+    case '低碳水':
+      return 'warning'
+    case '高脂肪':
+    case '高热量':
+      return 'danger'
+    case '减脂推荐':
+    case '增肌推荐':
+      return 'info'
+    default:
+      return 'default'
+  }
+}
+
+onMounted(fetchFoodData(), fetchFavoriteStatus(foodId), fetchTags())
 
 </script>
 
@@ -167,7 +201,6 @@ onMounted(fetchFoodData(), fetchFavoriteStatus(foodId))
 .goBack-wrapper {
     width: 100%;
     max-width: calc(100% - 32px);
-
 }
 
 .goBack {

@@ -1,10 +1,14 @@
 package com.nt.tracker.domain.dto;
 
+import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.io.Serializable;
 
 @Data
+@AllArgsConstructor
+@NoArgsConstructor
 public class User implements Serializable {
 
     // 用户id

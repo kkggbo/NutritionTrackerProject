@@ -7,6 +7,7 @@ import java.io.Serializable;
 @Data
 public class FoodDTO implements Serializable {
 
+    private Long id;
     private Long userId;
     private String name;
     private Double caloriesPer100g;
