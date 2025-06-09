@@ -9,6 +9,7 @@ import com.nt.tracker.domain.vo.DiaryVO;
 import com.nt.tracker.mapper.FoodMapper;
 import com.nt.tracker.mapper.UserMapper;
 import com.nt.tracker.service.UserService;
+import com.nt.tracker.utils.RedisUtils;
 import com.nt.tracker.utils.UserThreadLocal;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
@@ -16,10 +17,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Stream;
 
 import static com.nt.tracker.common.Constants.*;
@@ -33,6 +36,9 @@ public class UserServiceImpl implements UserService {
 
     @Autowired
     private FoodMapper foodMapper;
+
+    @Autowired
+    private RedisUtils redisUtils;
 
     @Override
     public Result<String> setUserProfile(UserProfileDTO userProfileDTO) {
@@ -92,8 +98,21 @@ public class UserServiceImpl implements UserService {
     @Override
     public Result<DiaryVO> getDiary() {
         Long userId = UserThreadLocal.getUserId();
-        DiaryVO diary = new DiaryVO();
+        LocalDate today = LocalDate.now();
+        DiaryVO diary;
 
+        // 尝试从Redis缓存中获取
+        String dateStr = today.format(DateTimeFormatter.ISO_LOCAL_DATE);
+        String key = REDIS_KEY_DIARY + userId + "::" + dateStr;
+        diary = redisUtils.get(key, DiaryVO.class);
+
+        // 缓存中有结果则直接返回
+        if (diary != null) {
+            return Result.success(diary);
+        }
+        diary = new DiaryVO();
+
+        // 缓存中没有结果则从数据库中查询
         // 获取当前用户每日热量获取目标
         int goalCalories = userMapper.getDailyCalories(userId);
 
@@ -104,7 +123,7 @@ public class UserServiceImpl implements UserService {
 
 
         // 获取用户今日每餐已摄入的食物信息
-        List<IntakePO> todayIntakeDetails = foodMapper.getIntakesByIdAndDate(userId, LocalDate.now());
+        List<IntakePO> todayIntakeDetails = foodMapper.getIntakesByIdAndDate(userId, today);
         if (todayIntakeDetails == null) {
             todayIntakeDetails = new ArrayList<>();
         }
@@ -161,6 +180,9 @@ public class UserServiceImpl implements UserService {
         List<DiaryVO.Meal> meals = new ArrayList<>();
         Collections.addAll(meals, breakFast, lunch, dinner, snack);
         diary.setMeals(meals);
+
+        // 把结果加入到缓存中
+        redisUtils.set(key, diary, CACHE_TIME_LONG, TimeUnit.MINUTES);
 
         //  返回数据
         return Result.success(diary);

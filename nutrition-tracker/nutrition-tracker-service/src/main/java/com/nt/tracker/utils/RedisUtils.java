@@ -4,6 +4,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Component;
 
@@ -12,6 +13,7 @@ import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
 @Component
+@Slf4j
 public class RedisUtils {
 
     private final StringRedisTemplate stringRedisTemplate;
@@ -29,6 +31,7 @@ public class RedisUtils {
         try {
             String json = objectMapper.writeValueAsString(value);
             stringRedisTemplate.opsForValue().set(key, json);
+            log.warn("已缓存key：" + key);
         } catch (JsonProcessingException e) {
             throw new RuntimeException("序列化失败", e);
         }
@@ -39,7 +42,7 @@ public class RedisUtils {
         try {
             String json = objectMapper.writeValueAsString(value);
             stringRedisTemplate.opsForValue().set(key, json, timeout, unit);
-            System.out.println("已保存数据到 Redis。 key：" + key + ", 值：" + json);
+            log.warn("已缓存key：" + key + "，已设置过期时间：" + timeout + " " + unit);
         } catch (JsonProcessingException e) {
             throw new RuntimeException("序列化失败", e);
         }
@@ -50,6 +53,7 @@ public class RedisUtils {
         String json = stringRedisTemplate.opsForValue().get(key);
         if (json == null) return null;
         try {
+            log.warn("从缓存读取到key：" + key);
             return objectMapper.readValue(json, clazz);
         } catch (IOException e) {
             throw new RuntimeException("反序列化失败", e);
@@ -61,6 +65,7 @@ public class RedisUtils {
         String json = stringRedisTemplate.opsForValue().get(key);
         if (json == null) return null;
         try {
+            log.warn("从缓存读取到key：" + key);
             return objectMapper.readValue(json, typeReference);
         } catch (JsonProcessingException e) {
             throw new RuntimeException("Redis反序列化失败", e);
@@ -75,6 +80,7 @@ public class RedisUtils {
     // 删除 key
     public void delete(String key) {
         stringRedisTemplate.delete(key);
+        log.warn("已删除key：" + key);
     }
 
     // 根据前缀批量删除 key
@@ -82,6 +88,7 @@ public class RedisUtils {
         Set<String> keys = stringRedisTemplate.keys(prefix + "*");
         if (keys != null && !keys.isEmpty()) {
             stringRedisTemplate.delete(keys);
+            log.warn("已批量删除keys：" + keys);
         }
     }
 

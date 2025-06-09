@@ -1,5 +1,7 @@
 package com.nt.tracker.common;
 
+import java.util.Random;
+
 public class Constants {
     private Constants() {} // 防止实例化
 
@@ -43,10 +45,17 @@ public class Constants {
      * Redis缓存key
      */
 
-    public static final String REDIS_KEY_USER_FOOD_INVENTORY = "food_inv";
-    public static final String REDIS_KEY_FOOD_LIST = "food_list";
+    public static final String REDIS_KEY_USER_FOOD_INVENTORY = "food_inv::";
+    public static final String REDIS_KEY_FOOD_LIST = "food_list::";
+    public static final String REDIS_KEY_FOOD_DETAIL = "food_detail::";
+    public static final String REDIS_KEY_MEAL_INFO = "meal_info::";
+    public static final String REDIS_KEY_FAVORITE_STATUS = "favorite_status::";
+    public static final String REDIS_KEY_FAVORITE_LIST = "favorite_list::";
+    public static final String REDIS_KEY_RECENT_LIST = "recent_list::";
+    public static final String REDIS_KEY_FOOD_TAG = "food_tag::";
+    public static final String REDIS_KEY_DIARY = "user_diary::";
 
-
-
+    public static final long CACHE_TIME_SHORT = 5L;
+    public static final long CACHE_TIME_LONG = 30L+ new Random().nextInt(10);  // 30-40min缓存过期时间，防止缓存雪崩
 
 }

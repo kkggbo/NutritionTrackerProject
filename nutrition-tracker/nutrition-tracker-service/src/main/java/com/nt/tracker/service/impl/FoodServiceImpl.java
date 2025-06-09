@@ -23,6 +23,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.DigestUtils;
 
 import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
@@ -157,6 +158,14 @@ public class FoodServiceImpl implements FoodService {
 
         // 添加新食物
         foodMapper.addIntake(intakeInfo, userId);
+
+        // 删除Redis缓存
+        String dateStr = today.format(DateTimeFormatter.ISO_LOCAL_DATE);
+        String key = REDIS_KEY_MEAL_INFO + userId + "::" + intakeInfo.getMealType() + "::" + dateStr;
+        redisUtils.delete(key);
+        redisUtils.deleteKeysByPrefix(REDIS_KEY_RECENT_LIST + userId);
+        redisUtils.delete(REDIS_KEY_DIARY + userId + "::" + dateStr);
+
         return Result.success();
     }
 
@@ -204,8 +213,27 @@ public class FoodServiceImpl implements FoodService {
      */
     @Override
     public Result<FoodVO> getFoodDetail(Long foodId) {
-         FoodVO food = foodMapper.getFoodById(foodId);
-         return food == null ? Result.error("食物不存在") : Result.success(food);
+        // 尝试从Redis缓存获取数据
+        FoodVO food = redisUtils.get(REDIS_KEY_FOOD_DETAIL + foodId, FoodVO.class);
+
+        // 如果缓存中不存在，则从数据库中查询
+        if  (food == null) {
+            food = foodMapper.getFoodById(foodId);
+        }
+
+         // 检查食物信息是否存在
+        if (food == null) {
+            // 依然没有食物信息则返回错误信息
+
+            // 缓存空对象防止穿透
+            redisUtils.set(REDIS_KEY_FOOD_DETAIL + foodId, "", 5, TimeUnit.MINUTES);
+
+            return Result.error("食物不存在");
+        }
+        // 把食物信息添加到缓存中
+        redisUtils.set(REDIS_KEY_FOOD_DETAIL + foodId, food);
+
+         return Result.success(food);
     }
 
     @Override
@@ -225,7 +253,11 @@ public class FoodServiceImpl implements FoodService {
             foods = pageFoods.getResult();
 
             // 将结果保存到Redis中
-            redisUtils.set(key, foods, 30, TimeUnit.MINUTES);
+            if (foods.isEmpty()) {
+                redisUtils.set(key, foods, 5, TimeUnit.MINUTES); // 缓存空结果，避免缓存穿透。
+            } else {
+                redisUtils.set(key, foods, 30, TimeUnit.MINUTES);
+            }
         }
         return foods;
     }
@@ -235,8 +267,21 @@ public class FoodServiceImpl implements FoodService {
         // 获取当前用户id
         Long userId = UserThreadLocal.getUserId();
 
-        // 查询用户的饮食信息
-        List<MealFood> foods = foodMapper.getMealFoods(userId, mealType, date);
+        // 尝试从Redis缓存中获取
+        String dateStr = date.format(DateTimeFormatter.ISO_LOCAL_DATE);
+        String key = REDIS_KEY_MEAL_INFO + userId + "::" + mealType + "::" + dateStr;
+        List<MealFood> foods = redisUtils.get(key, new TypeReference<List<MealFood>>() {});
+
+        // Redis中没有数据，则从MYSQL中获取
+        if (foods == null) {
+            foods = foodMapper.getMealFoods(userId, mealType, date);
+            // 把结果保存到Redis中
+            if (foods.isEmpty()) {
+                redisUtils.set(key, foods, 5, TimeUnit.MINUTES); // 缓存空结果，避免缓存穿透。
+            } else {
+                redisUtils.set(key, foods, 30, TimeUnit.MINUTES);
+            }
+        }
 
         // 返回结果
         return Result.success(foods);
@@ -272,6 +317,13 @@ public class FoodServiceImpl implements FoodService {
             foodMapper.deleteMealFoods(userId, mealType, date, deletedFoodIds);
         }
 
+        // 删除Redis缓存
+        String dateStr = date.format(DateTimeFormatter.ISO_LOCAL_DATE);
+        String key = REDIS_KEY_MEAL_INFO + userId + "::" + mealType + "::" + dateStr;
+        redisUtils.delete(key);
+        redisUtils.deleteKeysByPrefix(REDIS_KEY_RECENT_LIST + userId);
+        redisUtils.delete(REDIS_KEY_DIARY + userId + "::" + dateStr);
+
         return Result.success();
     }
 
@@ -293,6 +345,13 @@ public class FoodServiceImpl implements FoodService {
             // 取消收藏
             foodMapper.removeFavorite(userId, foodId);
         }
+
+        // 删除Redis中的缓存
+        String key = REDIS_KEY_FAVORITE_STATUS + userId + "::" + foodId;
+        redisUtils.delete(key);
+        String favoriteListKey = REDIS_KEY_FAVORITE_LIST + userId;
+        redisUtils.deleteKeysByPrefix(favoriteListKey);
+
         return Result.success();
     }
 
@@ -300,9 +359,20 @@ public class FoodServiceImpl implements FoodService {
     public Result getFavoriteStatus(Long foodId) {
         Long userId = UserThreadLocal.getUserId();
 
-        // 查询数据库中是否有该食物的收藏记录并添加到返回的VO对象中
-        FavoriteVO favoriteVO = new FavoriteVO(foodMapper.getFavoriteStatus(userId, foodId));
+        // 尝试从Redis缓存中获取收藏状态
+        String key = REDIS_KEY_FAVORITE_STATUS + userId + "::" + foodId;
+        Boolean favoriteStatus = redisUtils.get(key, Boolean.class);
 
+        // Redis中没有数据，则从MYSQL中获取
+        if (favoriteStatus == null) {
+            // 查询数据库中是否有该食物的收藏记录并添加到返回的VO对象中
+            favoriteStatus = foodMapper.getFavoriteStatus(userId, foodId);
+            // 把结果保存到Redis中
+            redisUtils.set(key, favoriteStatus);
+        }
+
+        // 封装结果并返回
+        FavoriteVO favoriteVO = new FavoriteVO(favoriteStatus);
         return Result.success(favoriteVO);
     }
 
@@ -311,24 +381,70 @@ public class FoodServiceImpl implements FoodService {
 
         Long userId = UserThreadLocal.getUserId();
 
-        // 开始分页查询
-        PageHelper.startPage(page, size);
+        // 尝试从Redis缓存中获取
+        String key = REDIS_KEY_FAVORITE_LIST + userId + "::" + page + "::" + size;
+        List<FoodVO> favoriteFoods = redisUtils.get(key, new TypeReference<List<FoodVO>>() {});
 
-        // 根据名称查询食物
-        return foodMapper.getFavoriteFoodsById(userId);
+        // Redis中没有数据，则从MYSQL中获取
+        if (favoriteFoods == null) {
+
+            // 开始分页查询
+            PageHelper.startPage(page, size);
+
+            // 根据名称查询食物
+            favoriteFoods = foodMapper.getFavoriteFoodsById(userId);
+
+            // 把结果保存到Redis中
+            if (favoriteFoods.isEmpty()) {
+                redisUtils.set(key, favoriteFoods, CACHE_TIME_SHORT, TimeUnit.MINUTES); // 缓存空结果，避免缓存穿透。
+            } else {
+                redisUtils.set(key, favoriteFoods, CACHE_TIME_LONG, TimeUnit.MINUTES);
+            }
+        }
+        return favoriteFoods;
     }
 
     @Override
     public List<FoodVO> getRecentFoodList(Integer limit) {
 
         Long userId = UserThreadLocal.getUserId();
-        // 根据limit查询最近食用的食物
-        return foodMapper.getRecentFoodList(userId, limit);
+
+        // 尝试从Redis缓存中获取
+        String key = REDIS_KEY_RECENT_LIST + userId + "::" + limit;
+        List<FoodVO> recentFoods = redisUtils.get(key, new TypeReference<List<FoodVO>>() {});
+
+        // Redis中没有数据，则从MYSQL中获取
+        if (recentFoods == null) {
+            // 根据limit查询最近食用的食物
+            recentFoods = foodMapper.getRecentFoodList(userId, limit);
+
+            // 把结果保存到Redis中
+            if (recentFoods.isEmpty()) {
+                redisUtils.set(key, recentFoods, CACHE_TIME_SHORT, TimeUnit.MINUTES); // 缓存空结果，避免缓存穿透。
+            } else {
+                redisUtils.set(key, recentFoods, CACHE_TIME_LONG, TimeUnit.MINUTES);
+            }
+        }
+        return recentFoods;
     }
 
     @Override
-    public Object getTagsByFoodId(Integer foodId) {
-        List<String> tags = foodMapper.getTagsByFoodId(foodId);
+    public String getTagsByFoodId(Integer foodId) {
+        // 尝试从Redis缓存中获取
+        String key = REDIS_KEY_FOOD_TAG + foodId;
+        List<String> tags = redisUtils.get(key, new TypeReference<List<String>>() {});
+
+        // Redis中没有数据，则从MYSQL中获取
+        if (tags == null) {
+            tags = foodMapper.getTagsByFoodId(foodId);
+
+            if (tags.isEmpty()) {
+                redisUtils.set(key, tags, CACHE_TIME_SHORT, TimeUnit.MINUTES); // 缓存空结果，避免缓存穿透。
+            } else {
+                redisUtils.set(key, tags, CACHE_TIME_LONG, TimeUnit.MINUTES);
+            }
+        }
+
         return String.join(",", tags);  // 用逗号拼接返回
     }
 }

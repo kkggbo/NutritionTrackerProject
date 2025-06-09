@@ -35,7 +35,7 @@ public interface FoodService {
 
     List<FoodVO> getRecentFoodList(Integer limit);
 
-    Object getTagsByFoodId(Integer foodId);
+    String getTagsByFoodId(Integer foodId);
 
     public void addTags(FoodDTO food);
 }
