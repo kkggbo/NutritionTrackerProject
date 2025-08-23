@@ -9,8 +9,7 @@
         <version>0.0.1-SNAPSHOT</version>
     </parent>
 
-    <artifactId>nutrition-tracker-service</artifactId>
-    <packaging>jar</packaging>
+    <artifactId>food-service</artifactId>
 
     <properties>
         <maven.compiler.source>17</maven.compiler.source>
@@ -38,14 +37,6 @@
             <version>3.0.4</version>
         </dependency>
 
-        <!-- Spring Boot DevTools，开发工具，支持热部署 -->
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-devtools</artifactId>
-            <scope>runtime</scope>
-            <optional>true</optional>
-        </dependency>
-
         <!-- MySQL JDBC 驱动 -->
         <dependency>
             <groupId>com.mysql</groupId>
@@ -58,28 +49,6 @@
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
             <scope>provided</scope>
-        </dependency>
-
-        <!-- Spring Boot 测试 Starter，包含 JUnit、MockMVC 等测试工具 -->
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-test</artifactId>
-            <scope>test</scope>
-        </dependency>
-
-        <!-- MyBatis 测试 Starter，用于 MyBatis 测试 -->
-        <dependency>
-            <groupId>org.mybatis.spring.boot</groupId>
-            <artifactId>mybatis-spring-boot-starter-test</artifactId>
-            <version>3.0.4</version>
-            <scope>test</scope>
-        </dependency>
-
-        <!-- JJWT，用于生成和解析 JSON Web Token -->
-        <dependency>
-            <groupId>io.jsonwebtoken</groupId>
-            <artifactId>jjwt</artifactId>
-            <version>0.9.1</version>
         </dependency>
 
         <!-- JAXB API，解决 DatatypeConverter 缺失问题 -->
@@ -96,19 +65,24 @@
             <version>2.3.1</version>
         </dependency>
 
-        <!-- JUnit 5，用于单元测试 -->
-        <dependency>
-            <groupId>org.junit.jupiter</groupId>
-            <artifactId>junit-jupiter</artifactId>
-            <version>5.10.0</version>
-            <scope>test</scope>
-        </dependency>
-
         <!-- PageHelper Spring Boot Starter，用于分页查询 -->
         <dependency>
-             <groupId>com.github.pagehelper</groupId>
+            <groupId>com.github.pagehelper</groupId>
             <artifactId>pagehelper-spring-boot-starter</artifactId>
-             <version>1.4.7</version>
+            <version>1.4.7</version>
+        </dependency>
+
+        <!-- nt-common，通用工具类 -->
+        <dependency>
+            <groupId>org.example</groupId>
+            <artifactId>nt-common</artifactId>
+            <version>0.0.1-SNAPSHOT</version>
+        </dependency>
+
+        <!--nacos 服务注册发现-->
+        <dependency>
+            <groupId>com.alibaba.cloud</groupId>
+            <artifactId>spring-cloud-starter-alibaba-nacos-discovery</artifactId>
         </dependency>
 
     </dependencies>

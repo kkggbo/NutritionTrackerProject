@@ -1,20 +1,31 @@
-package com.nt.tracker.service.impl;
+package com.nt.user.service.impl;
 
-import com.nt.tracker.common.Result;
-import com.nt.tracker.domain.dto.UserDTO;
-import com.nt.tracker.domain.dto.UserProfile;
-import com.nt.tracker.domain.dto.UserProfileDTO;
-import com.nt.tracker.domain.po.IntakePO;
-import com.nt.tracker.domain.vo.DiaryVO;
-import com.nt.tracker.mapper.FoodMapper;
-import com.nt.tracker.mapper.UserMapper;
-import com.nt.tracker.service.UserService;
-import com.nt.tracker.utils.RedisUtils;
-import com.nt.tracker.utils.UserThreadLocal;
+
+import cn.hutool.core.collection.CollUtil;
+import cn.hutool.core.util.RandomUtil;
+import com.nt.common.Result;
+import com.nt.common.utils.RedisUtils;
+import com.nt.common.utils.UserThreadLocal;
+import com.nt.user.client.FoodClient;
+import com.nt.user.domain.dto.UserDTO;
+import com.nt.user.domain.dto.UserProfileDTO;
+import com.nt.user.domain.po.IntakePO;
+import com.nt.user.domain.po.UserProfile;
+import com.nt.user.domain.vo.DiaryVO;
+import com.nt.user.mapper.UserMapper;
+import com.nt.user.service.UserService;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cloud.client.ServiceInstance;
+import org.springframework.cloud.client.discovery.DiscoveryClient;
+import org.springframework.core.ParameterizedTypeReference;
+import org.springframework.http.HttpMethod;
 import org.springframework.stereotype.Service;
+import org.springframework.util.CollectionUtils;
+import org.springframework.web.client.RestTemplate;
+import org.springframework.web.util.UriComponentsBuilder;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
@@ -23,19 +34,28 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
-import java.util.stream.Stream;
 
-import static com.nt.tracker.common.Constants.*;
+import static com.nt.common.Constants.*;
+
 
 @Service
 @Slf4j
+// 通过构造函数注入restTemplate
+@RequiredArgsConstructor
 public class UserServiceImpl implements UserService {
+
+//    // 用final修饰以保证被lombok通过构造函数注入
+//    private final RestTemplate restTemplate;
+//
+//    private final DiscoveryClient discoveryClient;
+
+    private final FoodClient foodClient;
 
     @Autowired
     private UserMapper userMapper;
 
-    @Autowired
-    private FoodMapper foodMapper;
+//    @Autowired
+//    private FoodMapper foodMapper;
 
     @Autowired
     private RedisUtils redisUtils;
@@ -47,7 +67,7 @@ public class UserServiceImpl implements UserService {
      */
     @Override
     public Result<String> setUserProfile(UserProfileDTO userProfileDTO) {
-        Long userId = UserThreadLocal .getUserId();
+        Long userId = UserThreadLocal.getUserId();
         // 检查用户是否存在
         if (getUserById(userId) == null) {
             return Result.error("用户不存在");
@@ -105,13 +125,17 @@ public class UserServiceImpl implements UserService {
     }
 
 
+    // TODO 远程调用food service
     /**
      * 获取用户日食信息
      * @return
      */
     @Override
     public Result<DiaryVO> getDiary() {
-        Long userId = UserThreadLocal.getUserId();
+//        Long userId = UserThreadLocal.getUserId();
+//        LocalDate today = LocalDate.now();
+        // 暂时写死用户和日期
+        Long userId = 14L;
         LocalDate today = LocalDate.now();
         DiaryVO diary;
 
@@ -137,7 +161,34 @@ public class UserServiceImpl implements UserService {
 
 
         // 获取用户今日每餐已摄入的食物信息
-        List<IntakePO> todayIntakeDetails = foodMapper.getIntakesByIdAndDate(userId, today);
+        // List<IntakePO> todayIntakeDetails = foodMapper.getIntakesByIdAndDate(userId, today);
+
+//        // 根据服务名称获取服务实例列表
+//        List<ServiceInstance> instances = discoveryClient.getInstances("food-service");
+//        if (CollUtil.isEmpty(instances)){
+//            return Result.error("未找到food-service服务实例");
+//        }
+//
+//        // 手写负载均衡（随机）
+//        ServiceInstance instance = instances.get(RandomUtil.randomInt(instances.size()));
+//
+//        // 构建URL并传入请求参数
+//        String url = UriComponentsBuilder
+//                .fromHttpUrl(instance.getUri() + "/food/intakeOfDay")
+//                .queryParam("userId", userId)
+//                .queryParam("date", today.toString())
+//                .toUriString();
+//
+//        // 调用REST接口
+//        List<IntakePO> todayIntakeDetails = restTemplate.exchange(
+//                url,
+//                HttpMethod.GET,
+//                null,
+//                new ParameterizedTypeReference<List<IntakePO>>() {}
+//        ).getBody();
+
+        List<IntakePO> todayIntakeDetails = foodClient.getIntakeOfDay(userId, today);
+
         if (todayIntakeDetails == null) {
             todayIntakeDetails = new ArrayList<>();
         }

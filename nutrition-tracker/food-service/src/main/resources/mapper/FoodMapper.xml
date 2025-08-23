@@ -1,0 +1,127 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+ <!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+ <mapper namespace="com.nt.food.mapper.FoodMapper">
+    <select id="foodQuery" resultType="com.nt.food.domain.vo.FoodVO">
+        select  * from food
+        <where>
+            <if test="name != null and name != ''">
+                and name like concat('%',#{name},'%')
+            </if>
+        </where>
+        order by id asc
+    </select>
+
+    <insert id="addIntake">
+        INSERT INTO food_intake (
+            user_id,
+            food_id,
+            intake_date,
+            weight,
+            meal_type
+        )
+        VALUES (
+                   #{userId},
+                   #{intakeInfo.foodId},
+                   NOW(),
+                   #{intakeInfo.weight},
+                   #{intakeInfo.mealType}
+               )
+    </insert>
+    <select id="getIntakesByIdAndDate" resultType="com.nt.food.domain.po.IntakePO">
+        SELECT
+            fi.food_id,
+            fi.meal_type,
+            fi.weight,
+            f.calories_per_100g,
+            f.protein_per_100g,
+            f.fat_per_100g,
+            f.carbs_per_100g
+        FROM
+            food_intake fi
+                JOIN
+            food f ON fi.food_id = f.id
+        WHERE
+            fi.user_id = #{userId}
+          AND fi.intake_date = #{date}
+    </select>
+
+    <select id="getMealFoods" resultType="com.nt.food.domain.po.MealFood" parameterType="map">
+        SELECT
+            f.id,
+            f.name,
+            fi.weight,
+            f.calories_per_100g,
+            f.protein_per_100g,
+            f.fat_per_100g,
+            f.carbs_per_100g
+        FROM food_intake fi
+                 INNER JOIN food f ON fi.food_id = f.id
+        WHERE fi.user_id = #{userId}
+          AND fi.meal_type = #{mealType}
+          AND fi.intake_date = #{date}
+    </select>
+
+    <delete id="deleteMealFoods" parameterType="map">
+        DELETE FROM food_intake
+        WHERE user_id = #{userId}
+        AND meal_type = #{mealType}
+        AND intake_date = #{date}
+        AND food_id IN
+        <foreach collection="deletedFoodIds" item="id" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+
+    <select id="getFavoriteFoodsById" resultType="com.nt.food.domain.vo.FoodVO">
+        SELECT f.id,
+        f.name,
+        f.calories_per_100g,
+        f.protein_per_100g,
+        f.fat_per_100g,
+        f.carbs_per_100g
+        FROM food f
+        WHERE f.id IN (
+        SELECT food_id FROM food_favorite WHERE user_id = #{userId}
+        )
+    </select>
+
+    <select id="getRecentFoodList" resultType="com.nt.food.domain.vo.FoodVO">
+        SELECT f.id,
+               f.name,
+               f.calories_per_100g,
+               f.protein_per_100g,
+               f.fat_per_100g,
+               f.carbs_per_100g
+        FROM (
+                 SELECT food_id, MAX(intake_date) AS last_intake
+                 FROM food_intake
+                 WHERE user_id = #{userId}
+                 GROUP BY food_id
+                 ORDER BY last_intake DESC
+                 LIMIT #{limit}
+             ) AS recent
+                 JOIN food f ON recent.food_id = f.id
+        ORDER BY recent.last_intake DESC
+    </select>
+
+    <insert id="addTags">
+        INSERT INTO food_tag (food_id, tag_id)
+        VALUES
+        <foreach collection="tagIds" item="tagId" separator=",">
+            (#{id}, #{tagId})
+        </foreach>
+    </insert>
+
+    <select id="getTagsByFoodId" resultType="string">
+        SELECT t.name
+        FROM food_tag ft
+                 JOIN tag t ON ft.tag_id = t.id
+        WHERE ft.food_id = #{foodId}
+    </select>
+
+
+
+
+</mapper>

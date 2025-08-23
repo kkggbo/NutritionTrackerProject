@@ -1,11 +1,11 @@
-package com.nt.tracker.controller;
+package com.nt.auth.controller;
 
-import com.nt.tracker.common.Result;
-import com.nt.tracker.domain.dto.User;
-import com.nt.tracker.domain.dto.UserDTO;
-import com.nt.tracker.service.AuthService;
-import com.nt.tracker.service.impl.AuthServiceImpl;
-import com.nt.tracker.utils.JwtUtils;
+
+import com.nt.auth.domain.dto.UserDTO;
+import com.nt.auth.domain.po.User;
+import com.nt.auth.service.AuthService;
+import com.nt.common.Result;
+import com.nt.common.utils.JwtUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PostMapping;

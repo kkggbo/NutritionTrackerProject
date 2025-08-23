@@ -1,9 +1,13 @@
-package com.nt.tracker.service;
+package com.nt.food.service;
 
-import com.nt.tracker.common.Result;
-import com.nt.tracker.domain.dto.*;
-import com.nt.tracker.domain.vo.FoodVO;
-import com.nt.tracker.domain.vo.IntakeDetailVO;
+import com.nt.common.Result;
+import com.nt.food.domain.dto.FavoriteDTO;
+import com.nt.food.domain.dto.FoodDTO;
+import com.nt.food.domain.dto.IntakeDTO;
+import com.nt.food.domain.dto.MealUpdateRequestDTO;
+import com.nt.food.domain.po.IntakePO;
+import com.nt.food.domain.vo.FoodVO;
+
 
 import java.time.LocalDate;
 import java.util.List;
@@ -38,4 +42,6 @@ public interface FoodService {
     String getTagsByFoodId(Integer foodId);
 
     public void addTags(FoodDTO food);
+
+    List<IntakePO> getIntakeOfDay(Long userId, LocalDate date);
 }

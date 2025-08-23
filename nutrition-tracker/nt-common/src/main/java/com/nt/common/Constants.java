@@ -1,4 +1,4 @@
-package com.nt.tracker.common;
+package com.nt.common;
 
 import java.util.Random;
 

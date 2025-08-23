@@ -1,26 +1,25 @@
-package com.nt.tracker.service.impl;
+package com.nt.food.service.impl;
+
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
-import com.nt.tracker.common.Result;
-import com.nt.tracker.domain.dto.*;
-import com.nt.tracker.domain.po.MealFood;
-import com.nt.tracker.domain.vo.FavoriteVO;
-import com.nt.tracker.domain.vo.FoodVO;
-import com.nt.tracker.domain.vo.IntakeDetailVO;
-import com.nt.tracker.mapper.AuthMapper;
-import com.nt.tracker.mapper.FoodMapper;
-import com.nt.tracker.mapper.UserMapper;
-import com.nt.tracker.service.AuthService;
-import com.nt.tracker.service.FoodService;
-import com.nt.tracker.utils.RedisUtils;
-import com.nt.tracker.utils.UserThreadLocal;
+import com.nt.common.Result;
+import com.nt.common.utils.RedisUtils;
+import com.nt.common.utils.UserThreadLocal;
+import com.nt.food.domain.dto.FavoriteDTO;
+import com.nt.food.domain.dto.FoodDTO;
+import com.nt.food.domain.dto.IntakeDTO;
+import com.nt.food.domain.dto.MealUpdateRequestDTO;
+import com.nt.food.domain.po.IntakePO;
+import com.nt.food.domain.po.MealFood;
+import com.nt.food.domain.vo.FavoriteVO;
+import com.nt.food.domain.vo.FoodVO;
+import com.nt.food.mapper.FoodMapper;
+import com.nt.food.service.FoodService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.cglib.core.Local;
 import org.springframework.dao.DuplicateKeyException;
 import org.springframework.stereotype.Service;
-import org.springframework.util.DigestUtils;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
@@ -28,7 +27,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
-import static com.nt.tracker.common.Constants.*;
+import static com.nt.common.Constants.*;
 
 @Service
 @Slf4j
@@ -110,6 +109,11 @@ public class FoodServiceImpl implements FoodService {
         // 添加标签
         foodMapper.addTags(tagIds, food.getId());
 
+    }
+
+    @Override
+    public List<IntakePO> getIntakeOfDay(Long userId, LocalDate date) {
+        return foodMapper.getIntakesByIdAndDate(userId, date);
     }
 
     /**
@@ -318,6 +322,7 @@ public class FoodServiceImpl implements FoodService {
 
         // 获取需要被修改和删除的食物列表
         List<MealFood> foods = request.getFoods();
+
         List<MealFood> foodsToUpdate = new ArrayList<>();
         List<Long> deletedFoodIds = new ArrayList<>();
 

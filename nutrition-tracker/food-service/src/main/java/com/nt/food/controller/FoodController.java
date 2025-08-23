@@ -1,14 +1,16 @@
-package com.nt.tracker.controller;
+package com.nt.food.controller;
 
-import com.nt.tracker.common.Result;
-import com.nt.tracker.domain.dto.*;
-import com.nt.tracker.domain.vo.FoodVO;
-import com.nt.tracker.domain.vo.IntakeDetailVO;
-import com.nt.tracker.service.FoodService;
+import com.nt.common.Result;
+import com.nt.food.domain.dto.FavoriteDTO;
+import com.nt.food.domain.dto.FoodDTO;
+import com.nt.food.domain.dto.IntakeDTO;
+import com.nt.food.domain.dto.MealUpdateRequestDTO;
+import com.nt.food.domain.po.IntakePO;
+import com.nt.food.domain.vo.FoodVO;
+import com.nt.food.service.FoodService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
-
 import java.time.LocalDate;
 import java.util.List;
 
@@ -155,6 +157,18 @@ public class FoodController {
     @GetMapping("/tag/list")
     public Result getTagList(@RequestParam Integer foodId) {
         return Result.success(foodService.getTagsByFoodId(foodId));
+    }
+
+    /**
+     *  根据用户id和日期获取当日摄入情况
+     * @param userId
+     * @param date
+     * @return
+     */
+
+    @GetMapping("/intakeOfDay")
+    public List<IntakePO> getIntakeOfDay(@RequestParam Long userId, @RequestParam LocalDate date) {
+        return foodService.getIntakeOfDay(userId, date);
     }
 
 }
