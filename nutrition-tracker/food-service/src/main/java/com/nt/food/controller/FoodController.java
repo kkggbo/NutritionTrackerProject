@@ -161,14 +161,13 @@ public class FoodController {
 
     /**
      *  根据用户id和日期获取当日摄入情况
-     * @param userId
      * @param date
      * @return
      */
 
     @GetMapping("/intakeOfDay")
-    public List<IntakePO> getIntakeOfDay(@RequestParam Long userId, @RequestParam LocalDate date) {
-        return foodService.getIntakeOfDay(userId, date);
+    public List<IntakePO> getIntakeOfDay(@RequestParam LocalDate date) {
+        return foodService.getIntakeOfDay(date);
     }
 
 }

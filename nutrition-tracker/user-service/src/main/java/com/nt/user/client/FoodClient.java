@@ -11,5 +11,5 @@ import java.util.List;
 @FeignClient(name = "food-service")
 public interface FoodClient {
     @GetMapping("/food/intakeOfDay")
-    List<IntakePO> getIntakeOfDay(@RequestParam Long userId, @RequestParam LocalDate date);
+    List<IntakePO> getIntakeOfDay(@RequestParam LocalDate date);
 }

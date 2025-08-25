@@ -43,5 +43,5 @@ public interface FoodService {
 
     public void addTags(FoodDTO food);
 
-    List<IntakePO> getIntakeOfDay(Long userId, LocalDate date);
+    List<IntakePO> getIntakeOfDay(LocalDate date);
 }
