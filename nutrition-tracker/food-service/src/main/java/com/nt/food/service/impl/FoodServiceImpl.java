@@ -112,7 +112,9 @@ public class FoodServiceImpl implements FoodService {
     }
 
     @Override
-    public List<IntakePO> getIntakeOfDay(Long userId, LocalDate date) {
+    public List<IntakePO> getIntakeOfDay(LocalDate date) {
+        Long userId = UserThreadLocal.getUserId();
+        System.out.println("获取到userId: " + userId);
         return foodMapper.getIntakesByIdAndDate(userId, date);
     }
 
@@ -365,6 +367,8 @@ public class FoodServiceImpl implements FoodService {
 
         Long userId = UserThreadLocal.getUserId();
         Long foodId = favorite.getFoodId();
+
+        System.out.println("userId: " + userId);
 
         // 判断是收藏还是取消收藏
         if (favorite.getFavorite()) {

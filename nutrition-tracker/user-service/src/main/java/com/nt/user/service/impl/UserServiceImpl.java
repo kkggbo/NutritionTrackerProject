@@ -132,11 +132,9 @@ public class UserServiceImpl implements UserService {
      */
     @Override
     public Result<DiaryVO> getDiary() {
-//        Long userId = UserThreadLocal.getUserId();
-//        LocalDate today = LocalDate.now();
-        // 暂时写死用户和日期
-        Long userId = 14L;
+        Long userId = UserThreadLocal.getUserId();
         LocalDate today = LocalDate.now();
+
         DiaryVO diary;
 
         // 尝试从Redis缓存中获取
@@ -187,7 +185,7 @@ public class UserServiceImpl implements UserService {
 //                new ParameterizedTypeReference<List<IntakePO>>() {}
 //        ).getBody();
 
-        List<IntakePO> todayIntakeDetails = foodClient.getIntakeOfDay(userId, today);
+        List<IntakePO> todayIntakeDetails = foodClient.getIntakeOfDay(today);
 
         if (todayIntakeDetails == null) {
             todayIntakeDetails = new ArrayList<>();

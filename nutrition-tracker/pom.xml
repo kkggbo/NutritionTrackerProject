@@ -26,7 +26,8 @@
         <module>auth-service</module>
 		<module>food-service</module>
 		<module>nt-common</module>
-	</modules>
+        <module>nt-gateway</module>
+    </modules>
 
 	<!-- 全局属性 -->
 	<properties>
