@@ -13,18 +13,19 @@
 
 ## 🛠 技术栈
 
-- **后端**：Spring Boot, MyBatis
-- **前端**：Vue3, Element Plus
-- **安全认证**：JWT
-- **数据库**：MySQL, Redis
-- **工具库**：Lombok, HikariCP, JJWT，Git, Postman
+- **后端框架**：Spring Boot, MyBatis, Spring Cloud, Spring Cloud Alibaba
+- **前端框架**：Vue3, Element Plus
+- **安全认证**：JWT, JJWT
+- **数据库 & 缓存**：MySQL, Redis
+- **工具库**：Lombok, HikariCP, Git, Postman
 - **构建工具**：Maven
+- **容器化 & 部署**：Docker
+- **微服务**：Nacos, OpenFeign, LoadBalancer
 
 ---
 
-## 🚧 TODO（未来计划）
+## 🚧 TODO（未来功能计划）
 
-- 将项目拆分为微服务项目
 - 添加饮食建议与营养目标管理
 - 自定义食谱
 - 每日运动打卡
@@ -157,4 +158,12 @@
 ✅ 重写、优化接口文档，并把接口文档转移到ShowDoc中储存 
 
 ---
+
+### 🗓️ 2025.08.23
+✅ 将原有的单体项目成功拆分为多个独立的微服务，包括用户服务、食物服务、授权服务
+✅ 引入 Nacos 作为注册中心和配置中心（通过Docker部署在虚拟机上）
+✅ 集成 OpenFeign 实现了微服务之间的远程调用（实现用户服务远程调用食物服务的查询当日摄入功能）
+📝 TODO 引入 GateWay网关实现统一入口和统一安全认证等功能
+📝 TODO 引入 Sentinel实现服务的限流、熔断、降级等功能
+
 欢迎 Star ⭐ 本项目或提出 Issue 与建议，一起让它变得更好！
