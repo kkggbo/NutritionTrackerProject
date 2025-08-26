@@ -33,6 +33,7 @@ public class MyGlobalFilter implements GlobalFilter, Ordered {
         // 获取 Authorization header
         HttpHeaders headers = exchange.getRequest().getHeaders();
         String token = headers.getFirst("Authorization");
+        System.out.println("token = " + token);
 
         if (token != null && !token.isEmpty()) {
             try {
@@ -60,7 +61,7 @@ public class MyGlobalFilter implements GlobalFilter, Ordered {
 
     private Mono<Void> writeErrorResponse(ServerHttpResponse response, int code, String msg) {
         try {
-            response.setStatusCode(HttpStatus.UNAUTHORIZED);
+            response.setStatusCode(HttpStatus.OK);
             response.getHeaders().setContentType(MediaType.APPLICATION_JSON);
             Result<Object> result = Result.error(msg);
             result.setCode(code);

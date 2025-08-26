@@ -22,6 +22,10 @@ spring:
   cloud:
     nacos:
       server-addr: 192.168.200.128:8848 # Nacos服务器地址
+    sentinel:
+      transport:
+        dashboard: localhost:8090
+      http-method-specify: true # 开启请求方式前缀
 logging:
   level: # 日志级别
     root: info

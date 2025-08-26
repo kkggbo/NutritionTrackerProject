@@ -140,12 +140,14 @@ public class UserServiceImpl implements UserService {
         // 尝试从Redis缓存中获取
         String dateStr = today.format(DateTimeFormatter.ISO_LOCAL_DATE);
         String key = REDIS_KEY_DIARY + userId + "::" + dateStr;
+        /*
         diary = redisUtils.get(key, DiaryVO.class);
 
         // 缓存中有结果则直接返回
         if (diary != null) {
             return Result.success(diary);
         }
+        */
         diary = new DiaryVO();
 
         // 缓存中没有结果则从数据库中查询
@@ -185,6 +187,7 @@ public class UserServiceImpl implements UserService {
 //                new ParameterizedTypeReference<List<IntakePO>>() {}
 //        ).getBody();
 
+        // 远程调用food service微服务
         List<IntakePO> todayIntakeDetails = foodClient.getIntakeOfDay(today);
 
         if (todayIntakeDetails == null) {

@@ -8,6 +8,7 @@ import org.springframework.web.servlet.HandlerInterceptor;
 
 public class UserInfoInterceptor implements HandlerInterceptor {
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
+        System.out.println("拦截器拦截成功");
         // 获取登录用户信息
         String userId = request.getHeader("userId");
 

@@ -20,3 +20,7 @@ spring:
           uri: lb://food-service
           predicates:
             - Path=/food/**
+    sentinel:
+      transport:
+        dashboard: localhost:8090
+      http-method-specify: true # 开启请求方式前缀
