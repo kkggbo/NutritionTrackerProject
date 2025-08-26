@@ -166,4 +166,18 @@
 📝 TODO 引入 GateWay网关实现统一入口和统一安全认证等功能
 📝 TODO 引入 Sentinel实现服务的限流、熔断、降级等功能
 
+---
+
+### 🗓️ 2025.08.25
+✅ 引入网关并实现解析jwt令牌并将userId传递给微服务
+✅ 实现微服务之间用OpenFeign远程调用时传递用户id并用拦截器储存到被调用服务的ThreadLocal
+
+---
+
+### 🗓️ 2025.08.26
+✅ 引入sentinel
+✅ 为user-service远程调用food-service的接口提供了fallback逻辑
+
+---
+
 欢迎 Star ⭐ 本项目或提出 Issue 与建议，一起让它变得更好！
