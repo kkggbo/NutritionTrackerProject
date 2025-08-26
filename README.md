@@ -17,10 +17,10 @@
 - **前端框架**：Vue3, Element Plus
 - **安全认证**：JWT, JJWT
 - **数据库 & 缓存**：MySQL, Redis
-- **工具库**：Lombok, HikariCP, Git, Postman
+- **工具库**：Lombok, Git, Postman, Jmeter
 - **构建工具**：Maven
 - **容器化 & 部署**：Docker
-- **微服务**：Nacos, OpenFeign, LoadBalancer
+- **微服务**：Nacos, OpenFeign, LoadBalancer, Sentinel, Gateway
 
 ---
 
