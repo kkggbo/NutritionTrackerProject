@@ -26,11 +26,13 @@
 
 ## 🚧 TODO（未来功能计划）
 
+- 完善个人中心
 - 添加饮食建议与营养目标管理
 - 自定义食谱
 - 每日运动打卡
 - 使用消息队列实现禁食挑战功能
 - 导出饮食报告 PDF 或 Excel
+- 用 Redis 定时任务 + 消息队列（RocketMQ/Kafka）实现餐饮提醒。
 ---
 
 ## 📘 项目开发日志与接口文档 | Development Log And Interface Documentation
