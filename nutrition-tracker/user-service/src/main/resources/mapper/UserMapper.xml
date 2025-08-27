@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+ <!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+ <mapper namespace="com.nt.user.mapper.UserMapper">
+
+    <update id="updateUserProfile" parameterType="com.nt.user.domain.po.UserProfile">
+        UPDATE user_profile
+        SET
+            birth_year = #{birthYear},
+            weight = #{weight},
+            height = #{height},
+            gender = #{gender},
+            goal = #{goal},
+            activity_level = #{activityLevel},
+            bmi = #{bmi},
+            bmr = #{bmr},
+            daily_calories = #{dailyCalories}
+        WHERE user_id = #{userId}
+    </update>
+
+</mapper>

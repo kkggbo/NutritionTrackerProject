@@ -15,6 +15,8 @@ import org.springframework.util.DigestUtils;
 import java.util.HashMap;
 import java.util.Map;
 
+import static com.nt.common.Constants.NOT_REMEMBER_ME;
+
 @Service
 @Slf4j
 public class AuthServiceImpl implements AuthService {
@@ -36,7 +38,7 @@ public class AuthServiceImpl implements AuthService {
             // 生成jwt令牌
             Map<String, Object> claims = new HashMap<>();
             claims.put("id", user.getId());
-            String token = JwtUtils.generateJwt(claims);
+            String token = JwtUtils.generateJwt(claims, NOT_REMEMBER_ME);
 
             return Result.success(token);
         } catch (DuplicateKeyException e) {

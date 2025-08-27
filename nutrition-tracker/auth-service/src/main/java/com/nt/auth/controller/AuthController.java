@@ -43,6 +43,8 @@ public class AuthController {
      */
     @PostMapping("/login")
     public Result<String> login(@RequestBody UserDTO user) {
+        System.out.println("用户登录: "+user);
+
         User u = authService.login(user);
 
         // 是否登陆成功
@@ -53,7 +55,7 @@ public class AuthController {
         // 生成jwt令牌
         Map<String, Object> claims = new HashMap<>();
         claims.put("id", u.getId());
-        String token = JwtUtils.generateJwt(claims);
+        String token = JwtUtils.generateJwt(claims, user.getRememberMe());
 
         // 令牌中已经包含了当前用户的id
         // 返回token

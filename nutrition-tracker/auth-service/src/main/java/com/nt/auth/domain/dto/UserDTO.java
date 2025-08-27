@@ -15,4 +15,7 @@ public class UserDTO implements Serializable {
 
     // 密码
     private String password;
+
+    // 前端 "记住我" 复选框
+    private Boolean rememberMe = false;
 }

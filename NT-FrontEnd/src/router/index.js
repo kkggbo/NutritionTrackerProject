@@ -10,6 +10,7 @@ import FoodDetail from '@/views/FoodDetail.vue'
 import FoodList from '@/views/FoodList.vue'
 import MealDetail from '@/views/MealDetail.vue'
 import AddFood from '@/views/AddFood.vue'
+import UserCenter from '@/views/UserCenter.vue'
 
 
 // 定义路由关系
@@ -25,7 +26,8 @@ const routes = [
     },
     { path: '/foodList', component: FoodList},
     { path: '/mealDetail', component: MealDetail },
-    { path: '/addFood', component: AddFood }
+    { path: '/addFood', component: AddFood },
+    { path: '/userCenter', component: UserCenter }
 ]
 
 // 创建路由器

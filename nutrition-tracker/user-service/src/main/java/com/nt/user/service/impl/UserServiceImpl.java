@@ -62,56 +62,29 @@ public class UserServiceImpl implements UserService {
 
     /**
      * 设置用户信息
-     * @param userProfileDTO
+     * @param dto
      * @return
      */
     @Override
-    public Result<String> setUserProfile(UserProfileDTO userProfileDTO) {
+    public Result<String> setUserProfile(UserProfileDTO dto) {
         Long userId = UserThreadLocal.getUserId();
+
         // 检查用户是否存在
         if (getUserById(userId) == null) {
             return Result.error("用户不存在");
         }
 
-        // 检查用户是否已经设置过信息
+        // 检查是否已设置过信息
         if (userMapper.getUserProfile(userId) != null) {
             return Result.error("用户信息已存在");
         }
 
-        // 创建用户信息对象
-        UserProfile userProfile = new UserProfile();
-        BeanUtils.copyProperties(userProfileDTO, userProfile);
-        userProfile.setUserId(userId);
-
-        // 计算并设置用户BMI值
-        userProfile.setBmi(userProfile.getWeight() / Math.pow(userProfile.getHeight() / 100, 2));
-
-        // 计算并设置用户BMR值 (Mifflin-St Jeor 公式)
-        if(userProfile.getGender() == 1){
-            // 男性BMR = 10 × 体重(kg) + 6.25 × 身高(cm) – 5 × 年龄 + 5
-            userProfile.setBmr((int) Math.round(10 * userProfile.getWeight() + 6.25 * userProfile.getHeight() - 5 * userProfile.getAge() + 5));
-
-        } else {
-            // 女性BMR = 10 × 体重(kg) + 6.25 × 身高(cm) – 5 × 年龄 – 161
-            userProfile.setBmr((int) Math.round(10 * userProfile.getWeight() + 6.25 * userProfile.getHeight() - 5 * userProfile.getAge() - 161));
-        }
-
-        // 计算每日总能量消耗（TDEE）
-        double tdee = userProfile.getBmr() * userProfile.getActivityLevel();
-
-        // 设定热量目标
-        if (userProfile.getGoal() == 1){
-            // 用户目标增肌
-            userProfile.setDailyCalories((int) Math.round(tdee * 1.15));
-        } else {
-            // 用户目标减脂
-            userProfile.setDailyCalories((int) Math.round(tdee * 0.85));
-        }
-
-        // 插入用户信息
+        UserProfile userProfile = buildUserProfile(dto, userId);
         userMapper.insertUserProfile(userProfile);
+
         return Result.success();
     }
+
 
     /**
      * 获取用户信息
@@ -123,6 +96,33 @@ public class UserServiceImpl implements UserService {
         UserProfileDTO userProfile = userMapper.getUserProfile(userId);
         return userProfile == null ? Result.error("用户不存在") : Result.success(userProfile);
     }
+
+    /**
+     * 更新用户信息
+     * @param dto
+     * @return
+     */
+    @Override
+    public Result<String> updateUserProfile(UserProfileDTO dto) {
+        Long userId = UserThreadLocal.getUserId();
+
+        // 检查用户是否存在
+        if (getUserById(userId) == null) {
+            return Result.error("用户不存在");
+        }
+
+        // 检查用户信息是否存在
+        if (userMapper.getUserProfile(userId) == null) {
+            return Result.error("用户信息不存在");
+        }
+
+        UserProfile userProfile = buildUserProfile(dto, userId);
+        userMapper.updateUserProfile(userProfile);
+
+        return Result.success();
+    }
+
+
 
 
     // TODO 远程调用food service
@@ -269,6 +269,47 @@ public class UserServiceImpl implements UserService {
     */
     private UserDTO getUserById(Long id) {
         return userMapper.getUserById(id);
+    }
+
+    /**
+     * 构建用户数据信息
+     */
+    private UserProfile buildUserProfile(UserProfileDTO dto, Long userId) {
+        UserProfile userProfile = new UserProfile();
+        BeanUtils.copyProperties(dto, userProfile);
+        userProfile.setUserId(userId);
+
+        // 计算出生年份
+        int currentYear = LocalDate.now().getYear();
+        userProfile.setBirthYear(currentYear - dto.getAge());
+
+        // 计算BMI
+        userProfile.setBmi(userProfile.getWeight() / Math.pow(userProfile.getHeight() / 100, 2));
+
+        // 计算BMR
+        if (userProfile.getGender() == 1) {
+            // 男性BMR
+            userProfile.setBmr((int) Math.round(10 * userProfile.getWeight()
+                    + 6.25 * userProfile.getHeight()
+                    - 5 * userProfile.getAge() + 5));
+        } else {
+            // 女性BMR
+            userProfile.setBmr((int) Math.round(10 * userProfile.getWeight()
+                    + 6.25 * userProfile.getHeight()
+                    - 5 * userProfile.getAge() - 161));
+        }
+
+        // 计算TDEE
+        double tdee = userProfile.getBmr() * userProfile.getActivityLevel();
+
+        // 设置每日热量目标
+        if (userProfile.getGoal() == 1) {
+            userProfile.setDailyCalories((int) Math.round(tdee * 1.15)); // 增肌
+        } else {
+            userProfile.setDailyCalories((int) Math.round(tdee * 0.85)); // 减脂
+        }
+
+        return userProfile;
     }
 
 }

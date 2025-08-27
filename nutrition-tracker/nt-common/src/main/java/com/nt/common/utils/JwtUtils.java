@@ -11,7 +11,9 @@ import java.util.Map;
 
 public class JwtUtils {
     private static String signKey = "NTNTNTNTNTNTNTNTNTNTNTNTNTNTNTNT";
-    private static Long expire = 43200000L;
+    private static final long SHORT_EXPIRE = 43200000L;   // 12 小时
+    private static final long LONG_EXPIRE = 1209600000L;  // 14 天
+
 
     /**
      * 生成jwt
@@ -19,11 +21,11 @@ public class JwtUtils {
      * @param claims
      * @return
      */
-    public static String generateJwt(Map<String, Object> claims) {
+    public static String generateJwt(Map<String, Object> claims, Boolean rememberMe) {
         String jwt = Jwts.builder()
                 .addClaims(claims)
                 .signWith(SignatureAlgorithm.HS256, signKey.getBytes(StandardCharsets.UTF_8))
-                .setExpiration(new Date(System.currentTimeMillis() + expire))
+                .setExpiration(new Date(System.currentTimeMillis() + (rememberMe ? LONG_EXPIRE : SHORT_EXPIRE)))
                 .compact();
         return jwt;
     }

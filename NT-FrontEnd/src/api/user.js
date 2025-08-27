@@ -13,7 +13,7 @@ export function setUserInfoService(form) {
     //     女: 2
     // }
 
-        const goalMap = {
+    const goalMap = {
         增肌: 1,
         减脂: 2
     }
@@ -34,12 +34,32 @@ export function setUserInfoService(form) {
     })
 }
 
- /**
- * 查询用户日记信息
- */
-export const getUserDiaryService = () => { 
+/**
+* 查询用户日记信息
+*/
+export const getUserDiaryService = () => {
     return request({
         url: '/user/diary',
         method: 'get',
+    })
+}
+
+/**
+* 获取用户个人信息
+*/
+export const getUserInfoService = () => {
+    return request({
+        url: '/user/profile',
+        method: 'get',
+    })
+}
+
+// 更新用户个人信息
+export function updateUserInfoService(submitData) {
+
+    return request({
+        url: '/user/profile/update',
+        method: 'post',
+        data: submitData
     })
 }

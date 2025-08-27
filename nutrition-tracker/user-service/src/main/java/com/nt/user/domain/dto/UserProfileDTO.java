@@ -7,6 +7,9 @@ import java.io.Serializable;
 @Data
 public class UserProfileDTO implements Serializable {
 
+    // 用户名
+    private String username;
+
     // 性别（1=男，2=女）
     private Integer gender;
 

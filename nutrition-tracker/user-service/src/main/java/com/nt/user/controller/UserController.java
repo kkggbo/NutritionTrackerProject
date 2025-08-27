@@ -30,12 +30,11 @@ public class UserController {
      * 获取用户信息
      * @return
      */
-    @GetMapping("/profile/get")
+    @GetMapping("/profile")
     public Result<UserProfileDTO> getUserProfile() {
         return userService.getUserProfile();
     }
 
-    // Todo 把功能转移到food service服务
     /**
      * 获取用户日记页数据
      * @return
@@ -43,6 +42,15 @@ public class UserController {
     @GetMapping("/diary")
     public Result<DiaryVO> getDiary() {
         return userService.getDiary();
+    }
+
+    /**
+     * 更新用户信息
+     * @return
+     */
+    @PostMapping("/profile/update")
+    public Result<String> updateUserProfile(@RequestBody UserProfileDTO userProfile) {
+        return userService.updateUserProfile(userProfile);
     }
 
 }

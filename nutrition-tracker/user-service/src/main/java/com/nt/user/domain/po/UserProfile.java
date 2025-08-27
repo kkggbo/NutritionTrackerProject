@@ -12,6 +12,9 @@ public class UserProfile implements Serializable {
     // 性别（1=男，2=女）
     private Integer gender;
 
+    // 出生年
+    private Integer birthYear;
+
     // 年龄
     private Integer age;
 

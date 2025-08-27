@@ -8,6 +8,10 @@ import java.util.Random;
 public class Constants {
     private Constants() {} // 防止实例化
 
+    /** 登录时是否记住我 */
+    public static final boolean REMEMBER_ME = true;
+    public static final boolean NOT_REMEMBER_ME = false;
+
     /** 性别类型 */
     public static final int GENDER_MALE = 1;        // 男
     public static final int GENDER_FEMALE = 2;      // 女

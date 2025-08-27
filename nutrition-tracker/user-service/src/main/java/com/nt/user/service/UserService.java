@@ -11,4 +11,6 @@ public interface UserService {
     Result<UserProfileDTO> getUserProfile();
 
     Result<DiaryVO> getDiary();
+
+    Result<String> updateUserProfile(UserProfileDTO userProfile);
 }

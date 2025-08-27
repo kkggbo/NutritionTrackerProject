@@ -51,18 +51,13 @@
       </el-button>
     </div>
 
+    <!-- 底部导航栏 -->
     <div class="app-container">
       <div class="page-content">
-        <component :is="currentView" />
       </div>
 
       <nav class="bottom-nav">
-        <button
-          v-for="tab in tabs"
-          :key="tab.name"
-          :class="['nav-item', { active: activeTab === tab.name }]"
-          @click="activeTab = tab.name"
-        >
+        <button v-for="tab in tabs" :key="tab.name" class="nav-item" @click="router.push({ path: tab.path })">
           <span class="icon">{{ tab.icon }}</span>
           <span class="label">{{ tab.label }}</span>
         </button>
@@ -127,22 +122,6 @@ const progressColor = computed(() => {
 const remainingCalories = computed(() =>
   Math.max(goalCalories.value - totalCalories.value, 0)
 )
-
-// 页面切换
-const Diary = { template: '<div>营养日记内容</div>' }
-const Profile = { template: '<div>个人中心内容</div>' }
-const Settings = { template: '<div>设置页面内容</div>' }
-
-const tabs = [
-  { name: 'diary', label: '营养日记', icon: '📔', component: Diary },
-  { name: 'profile', label: '个人中心', icon: '👤', component: Profile },
-  { name: 'settings', label: '设置', icon: '⚙️', component: Settings }
-]
-
-const currentView = computed(() => {
-  const tab = tabs.find(t => t.name === activeTab.value)
-  return tab ? tab.component : null
-})
 
 // 事件
 function goToMeal(mealIndex) {
@@ -214,6 +193,13 @@ const getMealName = (name) => {
   }
 }
 
+// 底部导航栏切换
+const tabs = [
+  { name: 'diary', label: '营养日记', icon: '📔', path: '/' },
+  { name: 'profile', label: '个人中心', icon: '👤', path: '/userCenter' },
+  { name: 'settings', label: '设置（TODO）', icon: '⚙️', path: '/' }
+]
+
 userDiaryInfo()
 </script>
 
@@ -225,7 +211,7 @@ userDiaryInfo()
   height: 100vh;
   padding: 8px;
   box-sizing: border-box;
-}
+} 
 
 .summary-card {
   flex: 8;
