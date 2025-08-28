@@ -17,20 +17,22 @@
 - **前端框架**：Vue3, Element Plus
 - **安全认证**：JWT, JJWT
 - **数据库 & 缓存**：MySQL, Redis
-- **工具库**：Lombok, HikariCP, Git, Postman
+- **工具库**：Lombok, Git, Postman, Jmeter
 - **构建工具**：Maven
 - **容器化 & 部署**：Docker
-- **微服务**：Nacos, OpenFeign, LoadBalancer
+- **微服务**：Nacos, OpenFeign, LoadBalancer, Sentinel, Gateway
 
 ---
 
 ## 🚧 TODO（未来功能计划）
 
+- 完善个人中心
 - 添加饮食建议与营养目标管理
 - 自定义食谱
 - 每日运动打卡
 - 使用消息队列实现禁食挑战功能
 - 导出饮食报告 PDF 或 Excel
+- 用 Redis 定时任务 + 消息队列（RocketMQ/Kafka）实现餐饮提醒。
 ---
 
 ## 📘 项目开发日志与接口文档 | Development Log And Interface Documentation
@@ -160,10 +162,29 @@
 ---
 
 ### 🗓️ 2025.08.23
-✅ 将原有的单体项目成功拆分为多个独立的微服务，包括用户服务、食物服务、授权服务
-✅ 引入 Nacos 作为注册中心和配置中心（通过Docker部署在虚拟机上）
-✅ 集成 OpenFeign 实现了微服务之间的远程调用（实现用户服务远程调用食物服务的查询当日摄入功能）
-📝 TODO 引入 GateWay网关实现统一入口和统一安全认证等功能
-📝 TODO 引入 Sentinel实现服务的限流、熔断、降级等功能
+✅ 将原有的单体项目成功拆分为多个独立的微服务，包括用户服务、食物服务、授权服务  
+✅ 引入 Nacos 作为注册中心和配置中心（通过Docker部署在虚拟机上）  
+✅ 集成 OpenFeign 实现了微服务之间的远程调用（实现用户服务远程调用食物服务的查询当日摄入功能）  
+📝 TODO 引入 GateWay网关实现统一入口和统一安全认证等功能   
+📝 TODO 引入 Sentinel实现服务的限流、熔断、降级等功能 
 
+---
+
+### 🗓️ 2025.08.25
+✅ 引入网关并实现解析jwt令牌并将userId传递给微服务  
+✅ 实现微服务之间用OpenFeign远程调用时传递用户id并用拦截器储存到被调用服务的ThreadLocal  
+
+---
+
+### 🗓️ 2025.08.26
+✅ 引入sentinel  
+✅ 为user-service远程调用food-service的接口提供了fallback逻辑
+
+---
+
+### 🗓️ 2025.08.27
+✅ 用户登录时可勾选记住我选框，token有效期变为14天而不是默认的12小时  
+✅ 开发用户个人中心界面，用户可以在此页面查看和修改个人信息
+
+---
 欢迎 Star ⭐ 本项目或提出 Issue 与建议，一起让它变得更好！
