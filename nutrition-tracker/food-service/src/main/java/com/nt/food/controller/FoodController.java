@@ -6,7 +6,7 @@ import com.nt.food.domain.dto.FoodDTO;
 import com.nt.food.domain.dto.IntakeDTO;
 import com.nt.food.domain.dto.MealUpdateRequestDTO;
 import com.nt.food.domain.po.IntakePO;
-import com.nt.food.domain.vo.FoodVO;
+import com.nt.common.domain.vo.FoodVO;
 import com.nt.food.service.FoodService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -62,6 +62,25 @@ public class FoodController {
     @GetMapping ("/detail/{foodId}")
     public Result<FoodVO> getFoodDetail(@PathVariable Long foodId) {
         return foodService.getFoodDetail(foodId);
+    }
+
+    /**
+     * 根据一批食物ID获取食物详情
+     * @param ids 食物ID列表，前端传 JSON 数组
+     * @return List<FoodVO>
+     */
+    @PostMapping("/batch")
+    public Result<List<FoodVO>> getFoodsByIds(@RequestBody List<Long> ids) {
+        if (ids == null || ids.isEmpty()) {
+            return Result.error("食物ID列表为空");
+        }
+        try {
+            List<FoodVO> foods = foodService.getFoodsByIds(ids);
+            return Result.success(foods);
+        } catch (Exception e) {
+            log.error("批量获取食物信息失败", e);
+            return Result.error("获取食物信息失败");
+        }
     }
 
     /**

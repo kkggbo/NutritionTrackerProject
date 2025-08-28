@@ -13,7 +13,7 @@ import com.nt.food.domain.dto.MealUpdateRequestDTO;
 import com.nt.food.domain.po.IntakePO;
 import com.nt.food.domain.po.MealFood;
 import com.nt.food.domain.vo.FavoriteVO;
-import com.nt.food.domain.vo.FoodVO;
+import com.nt.common.domain.vo.FoodVO;
 import com.nt.food.mapper.FoodMapper;
 import com.nt.food.service.FoodService;
 import lombok.extern.slf4j.Slf4j;
@@ -24,6 +24,7 @@ import org.springframework.stereotype.Service;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
@@ -116,6 +117,14 @@ public class FoodServiceImpl implements FoodService {
         Long userId = UserThreadLocal.getUserId();
         System.out.println("获取到userId: " + userId);
         return foodMapper.getIntakesByIdAndDate(userId, date);
+    }
+
+    @Override
+    public List<FoodVO> getFoodsByIds(List<Long> ids) {
+        if (ids == null || ids.isEmpty()) {
+            return Collections.emptyList();
+        }
+        return foodMapper.selectFoodsByIds(ids);
     }
 
     /**

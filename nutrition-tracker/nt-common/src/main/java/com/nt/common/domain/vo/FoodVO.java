@@ -1,4 +1,4 @@
-package com.nt.food.domain.vo;
+package com.nt.common.domain.vo;
 
 import lombok.Data;
 

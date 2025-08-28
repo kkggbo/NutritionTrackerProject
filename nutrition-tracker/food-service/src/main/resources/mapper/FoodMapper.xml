@@ -3,7 +3,8 @@
         PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
  <mapper namespace="com.nt.food.mapper.FoodMapper">
-    <select id="foodQuery" resultType="com.nt.food.domain.vo.FoodVO">
+
+    <select id="foodQuery" resultType="com.nt.common.domain.vo.FoodVO">
         select  * from food
         <where>
             <if test="name != null and name != ''">
@@ -74,7 +75,7 @@
         </foreach>
     </delete>
 
-    <select id="getFavoriteFoodsById" resultType="com.nt.food.domain.vo.FoodVO">
+    <select id="getFavoriteFoodsById" resultType="com.nt.common.domain.vo.FoodVO">
         SELECT f.id,
         f.name,
         f.calories_per_100g,
@@ -87,7 +88,7 @@
         )
     </select>
 
-    <select id="getRecentFoodList" resultType="com.nt.food.domain.vo.FoodVO">
+    <select id="getRecentFoodList" resultType="com.nt.common.domain.vo.FoodVO">
         SELECT f.id,
                f.name,
                f.calories_per_100g,
@@ -121,7 +122,16 @@
         WHERE ft.food_id = #{foodId}
     </select>
 
-
-
+    <select id="selectFoodsByIds" resultType="com.nt.common.domain.vo.FoodVO" parameterType="java.util.List">
+        SELECT id, name, calories_per_100g AS caloriesPer100g,
+        protein_per_100g AS proteinPer100g,
+        fat_per_100g AS fatPer100g,
+        carbs_per_100g AS carbsPer100g
+        FROM food
+        WHERE id IN
+        <foreach collection="ids" item="id" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </select>
 
 </mapper>

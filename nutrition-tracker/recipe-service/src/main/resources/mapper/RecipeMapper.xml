@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+ <!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+ <mapper namespace="com.nt.recipe.mapper.RecipeMapper">
+
+    <insert id="insertRecipe" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO recipe(user_id, name, description, cook_time, meal_type, step, total_calories, total_protein, total_fat, total_carbs)
+        VALUES(#{userId}, #{name}, #{description}, #{cookTime}, #{mealType}, #{steps}, #{totalCalories}, #{totalProtein}, #{totalFat}, #{totalCarbs})
+    </insert>
+
+    <insert id="insertRecipeFoods">
+        INSERT INTO recipe_food (recipe_id, food_id, weight)
+        VALUES
+        <foreach collection="foods" item="item" separator=",">
+            (#{item.recipeId}, #{item.foodId}, #{item.weight})
+        </foreach>
+    </insert>
+
+</mapper>

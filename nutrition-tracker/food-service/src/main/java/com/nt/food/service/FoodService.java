@@ -6,7 +6,7 @@ import com.nt.food.domain.dto.FoodDTO;
 import com.nt.food.domain.dto.IntakeDTO;
 import com.nt.food.domain.dto.MealUpdateRequestDTO;
 import com.nt.food.domain.po.IntakePO;
-import com.nt.food.domain.vo.FoodVO;
+import com.nt.common.domain.vo.FoodVO;
 
 
 import java.time.LocalDate;
@@ -44,4 +44,6 @@ public interface FoodService {
     public void addTags(FoodDTO food);
 
     List<IntakePO> getIntakeOfDay(LocalDate date);
+
+    List<FoodVO> getFoodsByIds(List<Long> ids);
 }

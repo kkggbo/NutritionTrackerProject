@@ -1,5 +1,6 @@
 package com.nt.food.domain.vo;
 
+import com.nt.common.domain.vo.FoodVO;
 import lombok.Data;
 
 import java.io.Serializable;

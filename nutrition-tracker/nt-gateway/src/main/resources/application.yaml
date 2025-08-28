@@ -20,6 +20,10 @@ spring:
           uri: lb://food-service
           predicates:
             - Path=/food/**
+        - id: recipe-service
+          uri: lb://recipe-service
+          predicates:
+            - Path=/recipe/**
     sentinel:
       transport:
         dashboard: localhost:8090

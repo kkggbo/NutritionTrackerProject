@@ -6,7 +6,7 @@ import com.nt.food.domain.dto.FoodDTO;
 import com.nt.food.domain.dto.IntakeDTO;
 import com.nt.food.domain.po.IntakePO;
 import com.nt.food.domain.po.MealFood;
-import com.nt.food.domain.vo.FoodVO;
+import com.nt.common.domain.vo.FoodVO;
 import org.apache.ibatis.annotations.*;
 
 import java.time.LocalDate;
@@ -70,4 +70,6 @@ public interface FoodMapper {
     void addTags(List<Integer> tagIds, Long id);
 
     List<String> getTagsByFoodId(Integer foodId);
+
+    List<FoodVO> selectFoodsByIds(List<Long> ids);
 }

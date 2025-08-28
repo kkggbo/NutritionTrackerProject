@@ -27,6 +27,7 @@
 		<module>food-service</module>
 		<module>nt-common</module>
         <module>nt-gateway</module>
+        <module>recipe-service</module>
     </modules>
 
 	<!-- 全局属性 -->
