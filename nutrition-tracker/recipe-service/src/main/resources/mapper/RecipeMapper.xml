@@ -17,4 +17,37 @@
         </foreach>
     </insert>
 
+    <select id="getRecipeById" resultType="com.nt.recipe.domain.po.RecipePO">
+        SELECT
+            id,
+            user_id,
+            name,
+            description,
+            cook_time,
+            meal_type,
+            step,
+            total_calories,
+            total_protein,
+            total_carbs,
+            total_fat
+        FROM recipe
+        WHERE id = #{id}
+    </select>
+
+    <update id="updateRecipe" parameterType="com.nt.recipe.domain.po.RecipePO">
+        UPDATE recipe
+        SET name = #{name},
+            user_id = #{userId},
+            description = #{description},
+            cook_time = #{cookTime},
+            meal_type = #{mealType},
+            step = #{steps},
+            total_calories = #{totalCalories},
+            total_protein = #{totalProtein},
+            total_fat = #{totalFat},
+            total_carbs = #{totalCarbs},
+            update_time = NOW()
+        WHERE id = #{id}
+    </update>
+
 </mapper>
