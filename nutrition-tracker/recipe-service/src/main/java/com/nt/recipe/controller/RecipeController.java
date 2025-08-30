@@ -3,12 +3,16 @@ package com.nt.recipe.controller;
 import com.nt.common.Result;
 import com.nt.common.utils.UserThreadLocal;
 import com.nt.recipe.domain.dto.RecipeDTO;
+import com.nt.recipe.domain.dto.RecipeQueryDTO;
+import com.nt.recipe.domain.vo.RecipeListVO;
 import com.nt.recipe.domain.vo.RecipeVO;
 import com.nt.recipe.service.RecipeService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/recipe")
@@ -63,4 +67,11 @@ public class RecipeController {
     public Result<String> updateRecipe(@PathVariable Long id, @RequestBody RecipeDTO recipeDTO) {
         return recipeService.updateRecipe(id, recipeDTO);
     }
+
+    @PostMapping("/query")
+    public Result<List<RecipeListVO>> queryRecipes(@RequestBody RecipeQueryDTO dto) {
+        return Result.success(recipeService.queryRecipes(dto));
+    }
+
+
 }

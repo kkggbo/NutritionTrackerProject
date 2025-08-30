@@ -50,4 +50,47 @@
         WHERE id = #{id}
     </update>
 
+    <select id="recipeQuery" resultType="com.nt.recipe.domain.vo.RecipeListVO">
+        SELECT
+            r.id,
+            r.name,
+            r.description,
+            r.cook_time AS cookTime,
+            r.meal_type AS mealType,
+            r.total_calories AS totalCalories
+        FROM recipe r
+        JOIN recipe_food rf ON r.id = rf.recipe_id
+        WHERE 1=1
+        <if test="name != null and name != ''">
+            AND r.name LIKE CONCAT('%', #{name}, '%')
+        </if>
+        <if test="cookTimeMin != null">
+            AND r.cook_time <![CDATA[ >= ]]> #{cookTimeMin}
+        </if>
+        <if test="cookTimeMax != null">
+            AND r.cook_time <![CDATA[ <= ]]> #{cookTimeMax}
+        </if>
+        <if test="caloriesMin != null">
+            AND r.total_calories <![CDATA[ >= ]]> #{caloriesMin}
+        </if>
+        <if test="caloriesMax != null">
+            AND r.total_calories <![CDATA[ <= ]]> #{caloriesMax}
+        </if>
+        <if test="mealType != null and mealType != ''">
+            AND r.meal_type = #{mealType}
+        </if>
+        <if test="foodIds != null and foodCount > 0">
+            AND rf.food_id IN
+            <foreach collection="foodIds" item="fid" open="(" separator="," close=")">
+                #{fid}
+            </foreach>
+        </if>
+        GROUP BY r.id
+        <if test="foodIds != null and foodCount > 0">
+            HAVING COUNT(DISTINCT rf.food_id) = #{foodCount}
+        </if>
+        ORDER BY r.create_time DESC
+    </select>
+
+
 </mapper>

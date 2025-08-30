@@ -2,12 +2,14 @@ package com.nt.recipe.domain.po;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.io.Serializable;
 import java.util.List;
 
 @Data
 @AllArgsConstructor
+@NoArgsConstructor
 public class RecipePO implements Serializable {
     private Long id;                // 主键ID
     private Long userId;            // 用户ID

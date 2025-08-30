@@ -71,6 +71,17 @@ public class RedisUtils {
         }
     }
 
+    public String getRaw(String key) {
+        String json = stringRedisTemplate.opsForValue().get(key);
+        if (json != null) {
+            log.warn("从缓存读取到key：" + key + "，原始值：" + json);
+        }
+        if (json != null) {
+            return json.replace("\"", "");
+        }
+        return json;
+    }
+
     // 获取 JSON 字符串
     public String getRawJson(String key) {
         return stringRedisTemplate.opsForValue().get(key);
@@ -142,4 +153,6 @@ public class RedisUtils {
     public Set<String> keys(String pattern) {
         return stringRedisTemplate.keys(pattern);
     }
+
+
 }

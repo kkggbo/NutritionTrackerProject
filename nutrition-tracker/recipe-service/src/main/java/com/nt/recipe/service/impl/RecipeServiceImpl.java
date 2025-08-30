@@ -1,11 +1,16 @@
 package com.nt.recipe.service.impl;
 
+import com.github.pagehelper.PageHelper;
+import com.github.pagehelper.Page;
 import com.nt.common.Result;
 import com.nt.common.domain.vo.FoodVO;
+import com.nt.common.utils.RedisUtils;
 import com.nt.recipe.client.FoodClient;
 import com.nt.recipe.domain.dto.RecipeDTO;
+import com.nt.recipe.domain.dto.RecipeQueryDTO;
 import com.nt.recipe.domain.po.RecipeFoodPO;
 import com.nt.recipe.domain.po.RecipePO;
+import com.nt.recipe.domain.vo.RecipeListVO;
 import com.nt.recipe.domain.vo.RecipeVO;
 import com.nt.recipe.mapper.RecipeMapper;
 import com.nt.recipe.service.RecipeService;
@@ -18,8 +23,12 @@ import org.springframework.transaction.annotation.Transactional;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.*;
+import java.util.concurrent.TimeUnit;
 import java.util.function.Function;
 import java.util.stream.Collectors;
+
+import static com.nt.common.Constants.REDIS_KEY_RECIPE_DETAIL;
+import static com.nt.common.Constants.REDIS_KEY_RECIPE_FOODS;
 
 @Service
 @Slf4j
@@ -30,6 +39,9 @@ public class RecipeServiceImpl implements RecipeService {
 
     @Autowired
     private RecipeMapper recipeMapper;
+
+    @Autowired
+    private RedisUtils redisUtils;
 
     /**
      * 新增食谱
@@ -77,6 +89,7 @@ public class RecipeServiceImpl implements RecipeService {
             recipeMapper.insertRecipeFoods(recipeFoods);
 
             log.info("新建食谱成功: userId={}, recipeId={}, name={}", recipe.getUserId(), recipeId, recipe.getName());
+
             return Result.success("新建食谱成功");
         } catch (Exception e) {
             log.error("添加食谱失败", e);
@@ -84,6 +97,13 @@ public class RecipeServiceImpl implements RecipeService {
         }
     }
 
+    /**
+     * 删除食谱
+     *
+     * @param id
+     * @param userId
+     * @return
+     */
     @Override
     @Transactional  // 删除涉及多表，开启事务保证一致性
     public boolean deleteRecipe(Long id, Long userId) {
@@ -99,17 +119,38 @@ public class RecipeServiceImpl implements RecipeService {
         // 删除食谱
         int rows = recipeMapper.deleteRecipe(id);
 
+        // 删除redis缓存
+        redisUtils.delete(REDIS_KEY_RECIPE_DETAIL + id);
+        log.info("删除Redis缓存成功: {}", REDIS_KEY_RECIPE_DETAIL + id);
+
         return rows > 0;
     }
 
     @Override
     @Transactional
     public RecipeVO getRecipe(Long id) {
-        // 获取食谱信息
+
+        // 尝试从redis中获取vo
+        String cached = redisUtils.getRaw(REDIS_KEY_RECIPE_DETAIL + id);
+
+        // 判断缓存中是否为空值（食谱不存在）
+        if ("NULL".equals(cached)) {
+            return null;
+        }
+        // 若缓存中不为null也不为"NULL"，则返回缓存中的数据
+        RecipeVO RedisVO = redisUtils.get(REDIS_KEY_RECIPE_DETAIL + id, RecipeVO.class);
+        if (cached != null) {
+            log.info("从redis中获取食谱成功: {}", cached);
+            return RedisVO;
+        }
+
+        // 缓存中的值为null，查询数据库
         RecipePO po = recipeMapper.getRecipeById(id);
 
         // 判断食谱是否存在
         if (po == null) {
+            // 缓存空对象5分钟，防止缓存穿透
+            redisUtils.set(REDIS_KEY_RECIPE_DETAIL + id, "NULL", 5, TimeUnit.MINUTES);
             return null;
         }
 
@@ -164,6 +205,10 @@ public class RecipeServiceImpl implements RecipeService {
                 .toList();
 
         vo.setIngredients(ingredients);
+
+        // 把结果储存到redis
+        redisUtils.set(REDIS_KEY_RECIPE_DETAIL + id, vo, 30, TimeUnit.DAYS);
+        log.info("添加Redis缓存成功: {}", REDIS_KEY_RECIPE_DETAIL + id);
         return vo;
     }
 
@@ -213,6 +258,10 @@ public class RecipeServiceImpl implements RecipeService {
             recipeFoods.forEach(rf -> rf.setRecipeId(recipeId));
             recipeMapper.insertRecipeFoods(recipeFoods);
 
+            // 删除Redis缓存
+            redisUtils.delete(REDIS_KEY_RECIPE_DETAIL + recipeId);
+            log.info("删除Redis缓存成功: {}", REDIS_KEY_RECIPE_DETAIL + recipeId);
+
             log.info("修改食谱成功: userId={}, recipeId={}, name={}", recipe.getUserId(), recipeId, recipe.getName());
             return Result.success("修改食谱成功");
 
@@ -220,6 +269,26 @@ public class RecipeServiceImpl implements RecipeService {
             log.error("修改食谱失败", e);
             return Result.error("修改食谱异常");
         }
+    }
+
+    @Override
+    public List<RecipeListVO> queryRecipes(RecipeQueryDTO dto) {
+
+        // 开始分页查询，设置页码和每页大小
+        PageHelper.startPage(dto.getPageNo(), dto.getPageSize());
+
+        // 查询食谱列表
+        // 记录食物数量，便于查询
+        if (dto.getFoodIds() != null) {
+            dto.setFoodCount(dto.getFoodIds().size());
+        } else {
+            dto.setFoodCount(0);
+        }
+        Page<RecipeListVO> pageRecipes = recipeMapper.recipeQuery(dto);
+
+        log.info("分页查询成功: " + pageRecipes.getResult());
+
+        return pageRecipes.getResult();
     }
 
     // 根据食物列表返回处理后的食谱持久化PO对象

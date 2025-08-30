@@ -52,6 +52,7 @@ public class Constants {
      * Redis缓存key
      */
 
+    // 食物相关缓存key
     public static final String REDIS_KEY_USER_FOOD_INVENTORY = "food_inv::";
     public static final String REDIS_KEY_FOOD_LIST = "food_list::";
     public static final String REDIS_KEY_FOOD_DETAIL = "food_detail::";
@@ -61,6 +62,10 @@ public class Constants {
     public static final String REDIS_KEY_RECENT_LIST = "recent_list::";
     public static final String REDIS_KEY_FOOD_TAG = "food_tag::";
     public static final String REDIS_KEY_DIARY = "user_diary::";
+
+    // 食谱相关缓存key
+    public static final String REDIS_KEY_RECIPE_DETAIL = "recipe_detail::";
+    public static final String REDIS_KEY_RECIPE_FOODS = "recipe_foods::";
 
     public static final long CACHE_TIME_SHORT = 5L;
     public static final long CACHE_TIME_LONG = 30L+ new Random().nextInt(10);  // 30-40min缓存过期时间，防止缓存雪崩

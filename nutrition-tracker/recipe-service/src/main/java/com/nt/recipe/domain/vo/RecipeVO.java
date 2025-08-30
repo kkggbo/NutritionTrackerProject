@@ -2,12 +2,14 @@ package com.nt.recipe.domain.vo;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.io.Serializable;
 import java.util.List;
 
 @Data
 @AllArgsConstructor
+@NoArgsConstructor
 public class RecipeVO implements Serializable {
     private Long id;                            // 菜谱ID
     private String name;                        // 菜谱名称

@@ -7,7 +7,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.cloud.openfeign.EnableFeignClients;
 
 @EnableFeignClients(defaultConfiguration = DefaultFeignConfig.class)
-@SpringBootApplication
+@SpringBootApplication(scanBasePackages = {"com.nt.recipe", "com.nt.common"})
 @MapperScan("com.nt.recipe.mapper")
 public class RecipeApplication {
 	public static void main(String[] args) {
