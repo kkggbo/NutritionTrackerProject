@@ -50,20 +50,20 @@
         <div class="meal-calories">{{ meal.calories }} kcal</div>
       </el-button>
     </div>
-
-    <!-- 底部导航栏 -->
-    <div class="app-container">
-      <div class="page-content">
-      </div>
-
-      <nav class="bottom-nav">
-        <button v-for="tab in tabs" :key="tab.name" class="nav-item" @click="router.push({ path: tab.path })">
-          <span class="icon">{{ tab.icon }}</span>
-          <span class="label">{{ tab.label }}</span>
-        </button>
-      </nav>
-    </div>
   </div>
+
+  <!-- 底部导航栏 -->
+<nav class="bottom-nav">
+  <button
+    v-for="tab in tabs"
+    :key="tab.name"
+    class="nav-item"
+    @click="router.push({ path: tab.path })"
+  >
+    <span class="icon">{{ tab.icon }}</span>
+    <span class="label">{{ tab.label }}</span>
+  </button>
+</nav>
 </template>
 
 
@@ -196,6 +196,7 @@ const getMealName = (name) => {
 // 底部导航栏切换
 const tabs = [
   { name: 'diary', label: '营养日记', icon: '📔', path: '/' },
+  { name: 'recipe', label: '食谱', icon: '🥗', path: '/recipeList' },
   { name: 'profile', label: '个人中心', icon: '👤', path: '/userCenter' },
   { name: 'settings', label: '设置（TODO）', icon: '⚙️', path: '/' }
 ]
@@ -284,7 +285,7 @@ userDiaryInfo()
   grid-template-columns: 1fr 1fr;
   grid-template-rows: 1fr 1fr;
   gap: 12px;
-  margin-bottom: 12px;
+  margin-bottom: 60px;
   width: 95%;
   align-self: center;
 }
@@ -322,12 +323,17 @@ userDiaryInfo()
   margin: 0 4px;
 }
 
-/* 底部导航栏 */
+/* 底部导航栏固定 */
 .bottom-nav {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
   display: flex;
   border-top: 1px solid #ddd;
   background: #fff;
   height: 56px;
+  z-index: 1000; /* 确保在最上层 */
 }
 
 .nav-item {
@@ -352,7 +358,11 @@ userDiaryInfo()
 
 .nav-item.active {
   color: #409eff;
-  /* 选中颜色 */
   font-weight: 600;
+}
+
+/* 关键：给主内容区域留出底部高度，避免被导航栏挡住 */
+.recipe-list-page {
+  padding-bottom: 70px; /* 要大于 bottom-nav 的高度 */
 }
 </style>
