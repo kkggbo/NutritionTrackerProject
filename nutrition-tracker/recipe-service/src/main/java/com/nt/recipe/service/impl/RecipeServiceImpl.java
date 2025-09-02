@@ -126,6 +126,12 @@ public class RecipeServiceImpl implements RecipeService {
         return rows > 0;
     }
 
+    /**
+     * 获取食谱
+     *
+     * @param id
+     * @return
+     */
     @Override
     @Transactional
     public RecipeVO getRecipe(Long id) {

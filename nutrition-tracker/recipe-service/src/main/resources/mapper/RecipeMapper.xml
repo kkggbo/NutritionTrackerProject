@@ -5,7 +5,7 @@
  <mapper namespace="com.nt.recipe.mapper.RecipeMapper">
 
     <insert id="insertRecipe" useGeneratedKeys="true" keyProperty="id">
-        INSERT INTO recipe(user_id, name, description, cook_time, meal_type, step, total_calories, total_protein, total_fat, total_carbs)
+        INSERT INTO recipe(user_id, name, description, cook_time, meal_type, steps, total_calories, total_protein, total_fat, total_carbs)
         VALUES(#{userId}, #{name}, #{description}, #{cookTime}, #{mealType}, #{steps}, #{totalCalories}, #{totalProtein}, #{totalFat}, #{totalCarbs})
     </insert>
 
@@ -25,7 +25,7 @@
             description,
             cook_time,
             meal_type,
-            step,
+            steps,
             total_calories,
             total_protein,
             total_carbs,

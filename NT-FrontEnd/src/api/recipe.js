@@ -9,3 +9,11 @@ export function fetchRecipeListService(data) {
     data: data
   })
 }
+
+export function fetchRecipeDetailService(id) {
+
+    return request({
+    url: `/recipe/${id}`,
+    method: 'get'
+  })
+}

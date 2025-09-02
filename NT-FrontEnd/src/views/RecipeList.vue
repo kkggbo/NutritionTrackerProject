@@ -23,10 +23,10 @@
                 <p class="font-semibold mb-2">膳食类型</p>
                 <el-radio-group v-model="filter.mealType">
                     <el-radio label="">不限</el-radio>
-                    <el-radio label="早餐">早餐</el-radio>
-                    <el-radio label="午餐">午餐</el-radio>
-                    <el-radio label="晚餐">晚餐</el-radio>
-                    <el-radio label="甜点">甜点</el-radio>
+                    <el-radio label="breakfast">早餐</el-radio>
+                    <el-radio label="lunch">午餐</el-radio>
+                    <el-radio label="dinner">晚餐</el-radio>
+                    <el-radio label="dessert">甜点</el-radio>
                 </el-radio-group>
             </div>
 
@@ -170,7 +170,11 @@ const applyFilter = () => {
 
 // 跳转详情页
 const goDetail = (id) => {
-    ElMessage.info(`跳转到食谱详情页: ${id}`);
+      router.push (
+    {
+      path: `/recipeDetail/` + id,
+    }
+  )
 };
 
 // 滚动加载
