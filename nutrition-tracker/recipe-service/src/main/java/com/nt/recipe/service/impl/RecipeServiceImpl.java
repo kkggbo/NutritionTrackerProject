@@ -5,11 +5,14 @@ import com.github.pagehelper.Page;
 import com.nt.common.Result;
 import com.nt.common.domain.vo.FoodVO;
 import com.nt.common.utils.RedisUtils;
+import com.nt.common.utils.UserThreadLocal;
 import com.nt.recipe.client.FoodClient;
 import com.nt.recipe.domain.dto.RecipeDTO;
 import com.nt.recipe.domain.dto.RecipeQueryDTO;
+import com.nt.recipe.domain.po.CommentPO;
 import com.nt.recipe.domain.po.RecipeFoodPO;
 import com.nt.recipe.domain.po.RecipePO;
+import com.nt.recipe.domain.vo.CommentVO;
 import com.nt.recipe.domain.vo.RecipeListVO;
 import com.nt.recipe.domain.vo.RecipeVO;
 import com.nt.recipe.mapper.RecipeMapper;
@@ -22,6 +25,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.time.LocalDateTime;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Function;
@@ -295,6 +299,116 @@ public class RecipeServiceImpl implements RecipeService {
         log.info("分页查询成功: " + pageRecipes.getResult());
 
         return pageRecipes.getResult();
+    }
+
+    @Override
+    public boolean likeRecipe(Long recipeId) {
+        Long userId = UserThreadLocal.getUserId();
+
+        // 已点赞过，返回 false
+        if (recipeMapper.existsLike(recipeId, userId) > 0) {
+            return false;
+        }
+
+        // 插入点赞记录
+        recipeMapper.insertLike(recipeId, userId);
+
+        // recipe 表 like_count + 1
+        recipeMapper.increaseLikeCount(recipeId);
+
+        return true;
+    }
+
+    @Override
+    public boolean unlikeRecipe(Long recipeId) {
+        Long userId = UserThreadLocal.getUserId();
+
+        // 没有点赞过，返回 false
+        if (recipeMapper.existsLike(recipeId, userId) == 0) {
+            return false;
+        }
+
+        // 删除点赞记录
+        recipeMapper.deleteLike(recipeId, userId);
+
+        // recipe 表 like_count - 1
+        recipeMapper.decreaseLikeCount(recipeId);
+
+        return true;
+    }
+
+    @Override
+    public int getLikeCount(Long recipeId) {
+        return recipeMapper.getLikeCount(recipeId);
+    }
+
+    @Override
+    public boolean isLiked(Long recipeId) {
+        Long userId = UserThreadLocal.getUserId();
+        return recipeMapper.existsLike(recipeId, userId) > 0;
+    }
+
+    @Override
+    public Boolean isFavorited(Long recipeId) {
+        Long userId = UserThreadLocal.getUserId();
+        Integer count = recipeMapper.checkFavorite(recipeId, userId);
+        return count != null && count > 0;
+    }
+
+    @Override
+    public Integer getFavoriteCount(Long recipeId) {
+        return recipeMapper.getFavoriteCount(recipeId);
+    }
+
+    @Override
+    public boolean unfavoriteRecipe(Long recipeId) {
+        Long userId = UserThreadLocal.getUserId();
+        Integer count = recipeMapper.checkFavorite(recipeId, userId);
+        if (count == null || count == 0) {
+            return false; // 未收藏
+        }
+        // 删除收藏记录
+        recipeMapper.deleteFavorite(recipeId, userId);
+        // 更新收藏数
+        recipeMapper.decrementFavoriteCount(recipeId);
+        return true;
+    }
+
+    @Override
+    public boolean favoriteRecipe(Long recipeId) {
+        Long userId = UserThreadLocal.getUserId();
+        // 检查是否已收藏
+        Integer count = recipeMapper.checkFavorite(recipeId, userId);
+        if (count != null && count > 0) {
+            return false; // 已收藏
+        }
+        // 插入收藏记录
+        recipeMapper.insertFavorite(recipeId, userId);
+        // 更新收藏数
+        recipeMapper.incrementFavoriteCount(recipeId);
+        return true;
+    }
+
+    @Override
+    public boolean addComment(Long recipeId, String content) {
+        Long userId = UserThreadLocal.getUserId();
+        if (userId == null) {
+            return false; // 未登录用户不能评论
+        }
+
+        CommentPO comment = new CommentPO();
+        comment.setRecipeId(recipeId);
+        comment.setUserId(userId);
+        comment.setContent(content);
+        comment.setCreateTime(LocalDateTime.now());
+
+        int rows = recipeMapper.insertComment(comment);
+        return rows > 0;
+    }
+
+    @Override
+    public List<CommentVO> getComments(Long recipeId) {
+        return recipeMapper.selectCommentsByRecipeId(recipeId);
     }
 
     // 根据食物列表返回处理后的食谱持久化PO对象

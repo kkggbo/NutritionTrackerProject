@@ -41,7 +41,7 @@
             description = #{description},
             cook_time = #{cookTime},
             meal_type = #{mealType},
-            step = #{steps},
+            steps = #{steps},
             total_calories = #{totalCalories},
             total_protein = #{totalProtein},
             total_fat = #{totalFat},
@@ -92,5 +92,102 @@
         ORDER BY r.create_time DESC
     </select>
 
+    <!-- 检查是否点赞过 -->
+    <select id="existsLike" resultType="int">
+        SELECT COUNT(*)
+        FROM recipe_like
+        WHERE recipe_id = #{recipeId}
+          AND user_id = #{userId}
+    </select>
+
+    <!-- 插入点赞 -->
+    <insert id="insertLike">
+        INSERT INTO recipe_like (recipe_id, user_id)
+        VALUES (#{recipeId}, #{userId})
+    </insert>
+
+    <!-- 删除点赞 -->
+    <delete id="deleteLike">
+        DELETE FROM recipe_like
+        WHERE recipe_id = #{recipeId}
+          AND user_id = #{userId}
+    </delete>
+
+    <!-- 点赞数 +1 -->
+    <update id="increaseLikeCount">
+        UPDATE recipe
+        SET like_count = like_count + 1
+        WHERE id = #{recipeId}
+    </update>
+
+    <!-- 点赞数 -1 -->
+    <update id="decreaseLikeCount">
+        UPDATE recipe
+        SET like_count = like_count - 1
+        WHERE id = #{recipeId}
+          AND like_count > 0
+    </update>
+
+    <!-- 获取点赞数 -->
+    <select id="getLikeCount" resultType="int">
+        SELECT like_count
+        FROM recipe
+        WHERE id = #{recipeId}
+    </select>
+
+    <!-- 检查用户是否收藏 -->
+    <select id="checkFavorite" parameterType="map" resultType="int">
+        SELECT COUNT(1)
+        FROM recipe_favorite
+        WHERE recipe_id = #{recipeId} AND user_id = #{userId}
+    </select>
+
+    <!-- 添加收藏 -->
+    <insert id="insertFavorite" parameterType="map">
+        INSERT INTO recipe_favorite(recipe_id, user_id, created_at)
+        VALUES(#{recipeId}, #{userId}, NOW())
+    </insert>
+
+    <!-- 删除收藏 -->
+    <delete id="deleteFavorite" parameterType="map">
+        DELETE FROM recipe_favorite
+        WHERE recipe_id = #{recipeId} AND user_id = #{userId}
+    </delete>
+
+    <!-- 收藏数 +1 -->
+    <update id="incrementFavoriteCount" parameterType="long">
+        UPDATE recipe
+        SET favorite_count = favorite_count + 1
+        WHERE id = #{recipeId}
+    </update>
+
+    <!-- 收藏数 -1 -->
+    <update id="decrementFavoriteCount">
+        UPDATE recipe
+        SET favorite_count = favorite_count - 1
+        WHERE id = #{recipeId}
+        AND favorite_count > 0
+    </update>
+
+    <!-- 获取收藏数 -->
+    <select id="getFavoriteCount" parameterType="long" resultType="int">
+        SELECT favorite_count
+        FROM recipe
+        WHERE id = #{recipeId}
+    </select>
+
+    <!-- 插入评论 -->
+    <insert id="insertComment" parameterType="com.nt.recipe.domain.vo.CommentVO" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO recipe_comment (recipe_id, user_id, content, create_time)
+        VALUES (#{recipeId}, #{userId}, #{content}, #{createTime})
+    </insert>
+
+    <!-- 查询指定食谱的所有评论，按时间倒序 -->
+    <select id="selectCommentsByRecipeId" parameterType="long" resultType="com.nt.recipe.domain.vo.CommentVO">
+        SELECT id, recipe_id AS recipeId, user_id AS userId, content, create_time AS createTime
+        FROM recipe_comment
+        WHERE recipe_id = #{recipeId}
+        ORDER BY create_time DESC
+    </select>
 
 </mapper>
