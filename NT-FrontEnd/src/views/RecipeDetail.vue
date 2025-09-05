@@ -1,7 +1,7 @@
 <template>
   <div class="recipe-detail">
     <!-- 图片（后端暂时没有封面图，这里先用占位图或以后扩展） -->
-    <el-image :src="recipe.coverImg || 'https://via.placeholder.com/600x300'" fit="cover" class="cover-img" />
+    <el-image :src="recipe.imageUrl || 'https://via.placeholder.com/600x300'" fit="cover" class="cover-img" />
 
     <!-- 标题和描述 -->
     <h2 class="title">{{ recipe.name }}</h2>
@@ -111,6 +111,7 @@ const likes = ref(0);
 const favorites = ref(0);
 const comments = ref([]);
 const newComment = ref("");
+const imageUrl = ref("");
 
 // ================= 获取食谱数据 =================
 const loadRecipeDetail = async () => {
@@ -131,6 +132,7 @@ const loadRecipeDetail = async () => {
         totalProtein: 0,
         totalFat: 0,
         totalCarbs: 0,
+        imageUrl: ""
       };
     }
   } catch (error) {
@@ -147,6 +149,7 @@ const loadRecipeDetail = async () => {
       totalProtein: 0,
       totalFat: 0,
       totalCarbs: 0,
+      imageUrl: ""
     };
   }
 };

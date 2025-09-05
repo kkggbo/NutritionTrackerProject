@@ -17,11 +17,17 @@ import com.nt.recipe.domain.vo.RecipeListVO;
 import com.nt.recipe.domain.vo.RecipeVO;
 import com.nt.recipe.mapper.RecipeMapper;
 import com.nt.recipe.service.RecipeService;
+import io.minio.BucketExistsArgs;
+import io.minio.MakeBucketArgs;
+import io.minio.MinioClient;
+import io.minio.PutObjectArgs;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
@@ -32,7 +38,6 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import static com.nt.common.Constants.REDIS_KEY_RECIPE_DETAIL;
-import static com.nt.common.Constants.REDIS_KEY_RECIPE_FOODS;
 
 @Service
 @Slf4j
@@ -46,6 +51,15 @@ public class RecipeServiceImpl implements RecipeService {
 
     @Autowired
     private RedisUtils redisUtils;
+
+    @Autowired
+    private MinioClient minioClient;
+
+    @Value("${minio.bucketName}")
+    private String bucketName;
+
+    @Value("${minio.endpoint}")
+    private String endpoint;
 
     /**
      * 新增食谱
@@ -177,7 +191,8 @@ public class RecipeServiceImpl implements RecipeService {
                 po.getTotalCalories(),
                 po.getTotalProtein(),
                 po.getTotalFat(),
-                po.getTotalCarbs()
+                po.getTotalCarbs(),
+                po.getImageUrl()
         );
 
         // 获取食材信息
@@ -411,6 +426,31 @@ public class RecipeServiceImpl implements RecipeService {
         return recipeMapper.selectCommentsByRecipeId(recipeId);
     }
 
+    @Override
+    public String uploadFile(MultipartFile file) throws Exception {
+        // 确保 bucket 存在，不存在就创建
+        boolean found = minioClient.bucketExists(BucketExistsArgs.builder().bucket(bucketName).build());
+        if (!found) {
+            minioClient.makeBucket(MakeBucketArgs.builder().bucket(bucketName).build());
+        }
+
+        // 生成唯一文件名
+        String fileName = UUID.randomUUID() + "_" + file.getOriginalFilename();
+
+        // 上传文件
+        minioClient.putObject(
+                PutObjectArgs.builder()
+                        .bucket(bucketName)
+                        .object(fileName)
+                        .stream(file.getInputStream(), file.getSize(), -1)
+                        .contentType(file.getContentType())
+                        .build()
+        );
+
+        // 返回可访问的 URL
+        return String.format("%s/%s/%s", endpoint, bucketName, fileName);
+    }
+
     // 根据食物列表返回处理后的食谱持久化PO对象
     public RecipePO operateFood(List<FoodVO> foods, RecipeDTO recipe, List<RecipeFoodPO> recipeFoods){
         double totalCalories = 0;
@@ -456,7 +496,8 @@ public class RecipeServiceImpl implements RecipeService {
                     totalCalories,
                     totalProtein,
                     totalFat,
-                    totalCarbs
+                    totalCarbs,
+                    recipe.getImageUrl()
         );
     }
 }

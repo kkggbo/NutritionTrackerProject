@@ -12,6 +12,7 @@ public class RecipeDTO implements Serializable {
     private String description;    // 菜谱描述
     private Integer cookTime;      // 烹饪时间（分钟）
     private String mealType;       // 膳食类型（breakfast, lunch, dinner, snack, dessert）
+    private String imageUrl;       // 图片URL
 
     // 食材列表
     private List<FoodIngredient> ingredients;

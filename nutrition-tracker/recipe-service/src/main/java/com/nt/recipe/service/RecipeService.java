@@ -6,6 +6,7 @@ import com.nt.recipe.domain.dto.RecipeQueryDTO;
 import com.nt.recipe.domain.vo.CommentVO;
 import com.nt.recipe.domain.vo.RecipeListVO;
 import com.nt.recipe.domain.vo.RecipeVO;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
@@ -51,4 +52,11 @@ public interface RecipeService {
      * @return 评论列表
      */
     List<CommentVO> getComments(Long recipeId);
+
+    /**
+     * 上传文件
+     * @param file 文件
+     * @return 文件URL
+     */
+    public String uploadFile(MultipartFile file) throws Exception;
 }

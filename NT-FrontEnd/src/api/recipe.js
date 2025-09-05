@@ -91,3 +91,18 @@ export function getCommentsService(recipeId) {
     method: 'get'
   });
 }
+
+// ================= 图片上传 =================
+export function uploadImageService(file) {
+  const formData = new FormData();
+  formData.append('file', file); // 后端接收的字段名是file
+
+  return request({
+    url: 'recipe/uploadImg',
+    method: 'post',
+    data: formData,
+    headers: {
+      'Content-Type': 'multipart/form-data'
+    }
+  });
+}

@@ -12,6 +12,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
@@ -184,6 +185,16 @@ public class RecipeController {
     public Result<List<CommentVO>> getComments(@PathVariable Long recipeId) {
         List<CommentVO> comments = recipeService.getComments(recipeId);
         return Result.success(comments);
+    }
+
+    @PostMapping("/uploadImg")
+    public Result<String> uploadFile(@RequestParam("file") MultipartFile file) {
+        try {
+            return Result.success(recipeService.uploadFile(file));
+        } catch (Exception e) {
+            log.info("上传文件失败。" + e.getMessage());
+            return Result.error("上传文件失败。" + e.getMessage());
+        }
     }
 
 }

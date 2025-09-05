@@ -5,8 +5,8 @@
  <mapper namespace="com.nt.recipe.mapper.RecipeMapper">
 
     <insert id="insertRecipe" useGeneratedKeys="true" keyProperty="id">
-        INSERT INTO recipe(user_id, name, description, cook_time, meal_type, steps, total_calories, total_protein, total_fat, total_carbs)
-        VALUES(#{userId}, #{name}, #{description}, #{cookTime}, #{mealType}, #{steps}, #{totalCalories}, #{totalProtein}, #{totalFat}, #{totalCarbs})
+        INSERT INTO recipe(user_id, name, description, cook_time, meal_type, steps, total_calories, total_protein, total_fat, total_carbs, imageUrl)
+        VALUES(#{userId}, #{name}, #{description}, #{cookTime}, #{mealType}, #{steps}, #{totalCalories}, #{totalProtein}, #{totalFat}, #{totalCarbs}, #{imageUrl})
     </insert>
 
     <insert id="insertRecipeFoods">
@@ -29,7 +29,8 @@
             total_calories,
             total_protein,
             total_carbs,
-            total_fat
+            total_fat,
+            imageUrl
         FROM recipe
         WHERE id = #{id}
     </select>
@@ -46,6 +47,7 @@
             total_protein = #{totalProtein},
             total_fat = #{totalFat},
             total_carbs = #{totalCarbs},
+            imageUrl = #{imageUrl},
             update_time = NOW()
         WHERE id = #{id}
     </update>

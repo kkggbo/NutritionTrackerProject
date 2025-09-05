@@ -22,4 +22,5 @@ public class RecipePO implements Serializable {
     private Double totalProtein;    // 总蛋白质
     private Double totalFat;        // 总脂肪
     private Double totalCarbs;      // 总碳水
+    private String imageUrl;        // 图片URL
 }
