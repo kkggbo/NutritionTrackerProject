@@ -12,4 +12,5 @@ public class RecipeListVO implements Serializable {
     private Integer cookTime;       // 烹饪时间
     private String mealType;        // 膳食类型（breakfast, lunch, dinner 等）
     private Double totalCalories;   // 总卡路里
+    private String imageUrl;        // 图片URL
 }

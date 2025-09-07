@@ -95,6 +95,8 @@ public class RecipeServiceImpl implements RecipeService {
 
             RecipePO recipePO = operateFood(foods, recipe, recipeFoods);
 
+            recipePO.setUserId(UserThreadLocal.getUserId());
+
             int res = recipeMapper.insertRecipe(recipePO);
 
             if (res <= 0) {

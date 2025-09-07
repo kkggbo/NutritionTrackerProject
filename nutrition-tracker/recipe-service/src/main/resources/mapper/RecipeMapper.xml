@@ -59,7 +59,8 @@
             r.description,
             r.cook_time AS cookTime,
             r.meal_type AS mealType,
-            r.total_calories AS totalCalories
+            r.total_calories AS totalCalories,
+            r.imageUrl
         FROM recipe r
         JOIN recipe_food rf ON r.id = rf.recipe_id
         WHERE 1=1

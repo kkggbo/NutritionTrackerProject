@@ -18,6 +18,15 @@ export function fetchRecipeDetailService(id) {
   })
 }
 
+// 上传食谱
+export function uploadRecipeService(payload) {
+  return request({
+    url: '/recipe',   
+    method: 'post',
+    data: payload
+  });
+}
+
 // ================= 点赞功能 =================
 export function likeRecipeService(recipeId) {
   return request({

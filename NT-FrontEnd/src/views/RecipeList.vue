@@ -12,6 +12,9 @@
 
         <!-- 更多筛选条件按钮 -->
         <div class="filter-btn-container">
+                <el-button type="success" @click="goToAddRecipe">
+        新增食谱
+    </el-button>
             <el-button type="primary" @click="showFilterDialog = true">
                 更多筛选条件
             </el-button>
@@ -60,7 +63,7 @@
         <el-row :gutter="12">
             <el-col v-for="recipe in recipes" :key="recipe.id" :xs="24" :sm="12" :md="8" :lg="6">
                 <el-card shadow="hover" class="mb-4 cursor-pointer recipe-card" @click="goDetail(recipe.id)">
-                    <img :src="recipe.coverImg" class="card-img" alt="封面" />
+                    <img :src="recipe.imageUrl" class="card-img" alt="封面" />
                     <div class="mt-2">
                         <h3 class="text-lg font-bold truncate">{{ recipe.name }}</h3>
                         <p class="text-sm text-gray-500 truncate">{{ recipe.description }}</p>
@@ -77,7 +80,10 @@
         <!-- 下滑加载提示 -->
         <div v-if="loading" class="text-center py-4 text-gray-500">正在加载更多...</div>
         <div v-else-if="noMore" class="text-center py-4 text-gray-400">没有更多了</div>
+
     </div>
+
+
 
     <!-- 底部导航栏 -->
     <nav class="bottom-nav">
@@ -90,7 +96,6 @@
 
 <script setup>
 import { ref, onMounted } from "vue";
-import { ElMessage } from "element-plus";
 import { useRouter } from "vue-router";
 import { fetchRecipeListService } from "../api/recipe";
 
@@ -134,6 +139,7 @@ const loadRecipes = async () => {
             const records = res.data;
             if (records && records.length > 0) {
                 recipes.value.push(...records);
+                console.log("recipes：", recipes.value);
                 page.value++;
             } else {
                 noMore.value = true;
@@ -199,6 +205,11 @@ const tabs = [
     { name: "profile", label: "个人中心", icon: "👤", path: "/userCenter" },
     { name: "settings", label: "设置（TODO）", icon: "⚙️", path: "/" }
 ];
+
+// 新增食谱按钮
+const goToAddRecipe = () => {
+    router.push({ path: '/uploadRecipe' });
+}
 </script>
 
 <style scoped>

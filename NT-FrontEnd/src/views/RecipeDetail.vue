@@ -119,6 +119,8 @@ const loadRecipeDetail = async () => {
     const res = await fetchRecipeDetailService(recipeId);
     if (res && res.data && res.code === 1) {
       recipe.value = res.data;
+      console.log(res.data);
+      console.log(res.data.imageUrl);
     } else {
       recipe.value = {
         id: null,
