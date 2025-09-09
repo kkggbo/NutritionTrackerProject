@@ -1,0 +1,58 @@
+server:
+  port: 8095 # 测试端口，避免和正式端口冲突
+
+spring:
+  application:
+    name: recipe-service-test # 测试服务名称
+
+  datasource:
+    url: jdbc:mysql://localhost:3306/nutrition_db?useSSL=false&useUnicode=true&characterEncoding=UTF-8&serverTimezone=UTC&allowPublicKeyRetrieval=true
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    username: root
+    password: 1234
+
+  data:
+    redis:
+      host: localhost
+      port: 6379
+      database: 1  # 测试用单独数据库，避免污染正式数据
+      lettuce:
+        pool:
+          max-active: 10
+          max-idle: 5
+          min-idle: 1
+          max-wait: 5000
+
+  cloud:
+    nacos:
+      discovery:
+        enabled: false  # 禁用 Nacos 自动注册
+    sentinel:
+      transport:
+        dashboard: localhost:8090
+      http-method-specify: true
+
+  rabbitmq:
+    host: 192.168.200.128
+    port: 5672
+    virtual-host: / # 可以新建 /nt 或用默认 /
+    username: ntadmin
+    password: nt123456
+
+logging:
+  level:
+    root: info
+    com.nt.tracker: debug
+
+mybatis:
+  mapper-locations: classpath:mapper/*.xml
+  type-aliases-package: com.sky.entity
+  configuration:
+    map-underscore-to-camel-case: true
+    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
+
+minio:
+  endpoint: http://192.168.200.128:9000
+  accessKey: admin
+  secretKey: admin123
+  bucketName: nt-recipes-pic-test # 测试用桶名，避免污染正式桶

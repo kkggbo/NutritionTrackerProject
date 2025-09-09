@@ -5,9 +5,10 @@ import com.nt.user.domain.dto.UserProfileDTO;
 import com.nt.user.domain.po.UserProfile;
 import org.apache.ibatis.annotations.Insert;
 import org.apache.ibatis.annotations.Select;
+import org.apache.ibatis.annotations.Update;
 
 public interface UserMapper {
-    @Insert("insert into user_profile (user_id, gender, birth_year, height, weight, goal, activity_level, bmi, bmr, daily_calories) values (#{userId}, #{gender}, #{birthYear}, #{height}, #{weight}, #{goal}, #{activityLevel}, #{bmi}, #{bmr}, #{dailyCalories})")
+    @Insert("insert into user_profile (user_id, user_name, gender, birth_year, height, weight, goal, activity_level, bmi, bmr, daily_calories) values (#{userId}, #{userName}, #{gender}, #{birthYear}, #{height}, #{weight}, #{goal}, #{activityLevel}, #{bmi}, #{bmr}, #{dailyCalories})")
     void insertUserProfile(UserProfile userProfile);
 
 
@@ -22,4 +23,10 @@ public interface UserMapper {
 
 
     void updateUserProfile(UserProfile userProfile);
+
+    @Update("UPDATE user SET points = points + #{points} WHERE id = #{userId}")
+    void increasePoints(Long userId, Integer points);
+
+    @Select("SELECT username FROM user WHERE id = #{userId}")
+    String getUserNameById(Long userId);
 }

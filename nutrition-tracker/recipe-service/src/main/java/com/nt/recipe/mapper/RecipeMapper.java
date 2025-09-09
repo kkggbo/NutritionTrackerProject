@@ -75,4 +75,7 @@ public interface RecipeMapper {
     int insertComment(CommentPO comment);
 
     List<CommentVO> selectCommentsByRecipeId(Long recipeId);
+
+    @Select("SELECT user_id FROM recipe WHERE id = #{recipeId}")
+    Long getCreatorIdByRecipeId(Long recipeId);
 }

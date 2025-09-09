@@ -23,6 +23,7 @@ import io.minio.MinioClient;
 import io.minio.PutObjectArgs;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -54,6 +55,9 @@ public class RecipeServiceImpl implements RecipeService {
 
     @Autowired
     private MinioClient minioClient;
+
+    @Autowired
+    private RabbitTemplate rabbitTemplate;
 
     @Value("${minio.bucketName}")
     private String bucketName;
@@ -319,6 +323,7 @@ public class RecipeServiceImpl implements RecipeService {
     }
 
     @Override
+    @Transactional
     public boolean likeRecipe(Long recipeId) {
         Long userId = UserThreadLocal.getUserId();
 
@@ -332,6 +337,16 @@ public class RecipeServiceImpl implements RecipeService {
 
         // recipe 表 like_count + 1
         recipeMapper.increaseLikeCount(recipeId);
+
+        // 查询食谱创建者
+        Long creatorId = recipeMapper.getCreatorIdByRecipeId(recipeId);
+
+        if (creatorId != null && !creatorId.equals(userId)) {
+            // 异步发送 RabbitMQ 消息
+            String message = creatorId + ":" + 10;
+            rabbitTemplate.convertAndSend("user-exchange", "add-points", message);
+            System.out.println("Sent message: " + message);
+        }
 
         return true;
     }

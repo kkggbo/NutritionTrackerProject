@@ -309,6 +309,9 @@ public class UserServiceImpl implements UserService {
             userProfile.setDailyCalories((int) Math.round(tdee * 0.85)); // 减脂
         }
 
+        // 获取用户名
+        userProfile.setUserName(userMapper.getUserNameById(userId));
+
         return userProfile;
     }
 

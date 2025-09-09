@@ -172,16 +172,15 @@ const loadLikeStatus = async () => {
 
 const toggleLike = async () => {
   try {
-    if (isLiked.value) {
-      await unlikeRecipeService(recipeId);
-      likes.value = Math.max(0, likes.value - 1);
-      isLiked.value = false;
-      ElMessage.success("取消点赞成功");
-    } else {
+    // 只有未点赞的用户才允许点赞
+    if (!isLiked.value) {
       await likeRecipeService(recipeId);
       likes.value++;
       isLiked.value = true;
       ElMessage.success("点赞成功");
+    } else {
+      // 已点赞，禁止再次操作
+      ElMessage.info("您已经点赞");
     }
   } catch (err) {
     console.error(err);

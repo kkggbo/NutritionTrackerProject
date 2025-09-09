@@ -26,6 +26,12 @@ spring:
       transport:
         dashboard: localhost:8090
       http-method-specify: true # 开启请求方式前缀
+  rabbitmq:
+    host: 192.168.200.128  # 虚拟机IP
+    port: 5672              # AMQP端口
+    virtual-host: /          # 虚拟主机
+    username: ntadmin        # RabbitMQ用户名
+    password: nt123456       # RabbitMQ密码
 logging:
   level: # 日志级别
     root: info

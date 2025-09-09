@@ -26,10 +26,17 @@ spring:
       transport:
         dashboard: localhost:8090
       http-method-specify: true # 开启请求方式前缀
+  rabbitmq:
+    host: 192.168.200.128  # 新虚拟机IP
+    port: 5672              # AMQP端口，一般不变
+    virtual-host: /          # 虚拟主机，如果你新建了 /nt，也可以改成 /nt
+    username: ntadmin        # RabbitMQ用户名
+    password: nt123456       # RabbitMQ密码
 logging:
   level: # 日志级别
     root: info
     com.nt.tracker: debug
+
 mybatis:
   #mapper配置文件
   mapper-locations: classpath:mapper/*.xml
