@@ -22,6 +22,7 @@
 - **容器化 & 部署**：Docker
 - **微服务**：Nacos, OpenFeign, LoadBalancer, Sentinel, Gateway
 - **存储服务**：MinIO
+- **消息队列**：RabbitMQ
 
 ---
 
