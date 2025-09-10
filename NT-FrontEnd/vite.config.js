@@ -22,6 +22,9 @@ export default defineConfig({
         changeOrigin: true,
         rewrite: (path) => path.replace(/^\/api/, ''), // 重写路径，用空字符代替‘api’
       }
-    }
+    },
+    host: true, // 必须开启 host 才能外部访问
+    port: 5173, // 你的端口
+    allowedHosts: ['.ngrok-free.app'] // 允许 ngrok 的域名访问
   }
 })

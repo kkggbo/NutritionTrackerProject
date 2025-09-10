@@ -17,7 +17,7 @@
 
       <!-- 最近和收藏按钮区域 -->
     <div class="filter-buttons">
-      <el-button type="info" @click="showRecent">📅 最近食用</el-button>
+      azai<el-button type="info" @click="showRecent">📅 最近食用</el-button>
       <el-button type="warning" @click="showFavorites">⭐ 我的收藏</el-button>
     </div>
 

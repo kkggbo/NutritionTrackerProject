@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+ <!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+ <mapper namespace="com.nt.user.mapper.UserChallengeMapper">
+
+    <!-- 插入一条挑战记录 -->
+    <insert id="insert" parameterType="com.nt.user.domain.po.UserChallenge" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO user_challenge
+        (user_id, challenge_type, start_time, end_time, status, reward_points)
+        VALUES
+            (#{userId}, #{challengeType}, #{startTime}, #{endTime}, #{status}, #{rewardPoints})
+    </insert>
+
+
+    <!-- 根据ID更新挑战记录 -->
+    <update id="updateById" parameterType="com.nt.user.domain.po.UserChallenge">
+        UPDATE user_challenge
+        SET
+            challenge_type = #{challengeType},
+            start_time = #{startTime},
+            end_time = #{endTime},
+            status = #{status},
+            reward_points = #{rewardPoints},
+            settle_time = #{settleTime}
+        WHERE id = #{id}
+    </update>
+
+</mapper>

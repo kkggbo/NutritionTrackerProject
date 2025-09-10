@@ -4,9 +4,11 @@ import com.nt.user.domain.dto.UserDTO;
 import com.nt.user.domain.dto.UserProfileDTO;
 import com.nt.user.domain.po.UserProfile;
 import org.apache.ibatis.annotations.Insert;
+import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Select;
 import org.apache.ibatis.annotations.Update;
 
+@Mapper
 public interface UserMapper {
     @Insert("insert into user_profile (user_id, user_name, gender, birth_year, height, weight, goal, activity_level, bmi, bmr, daily_calories) values (#{userId}, #{userName}, #{gender}, #{birthYear}, #{height}, #{weight}, #{goal}, #{activityLevel}, #{bmi}, #{bmr}, #{dailyCalories})")
     void insertUserProfile(UserProfile userProfile);
