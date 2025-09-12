@@ -13,4 +13,6 @@ public interface UserService {
     Result<DiaryVO> getDiary();
 
     Result<String> updateUserProfile(UserProfileDTO userProfile);
+
+    boolean deductPoints(Long userId, Integer points);
 }

@@ -5,6 +5,7 @@ import com.nt.common.Result;
 import com.nt.user.domain.dto.UserProfileDTO;
 import com.nt.user.domain.vo.DiaryVO;
 import com.nt.user.service.UserService;
+import org.apache.ibatis.annotations.Update;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -53,4 +54,11 @@ public class UserController {
         return userService.updateUserProfile(userProfile);
     }
 
+    /**
+     * 扣减用户积分
+     */
+    @PostMapping("/{userId}/points/deduct")
+    public boolean deductPoints(@PathVariable Long userId, @RequestParam Integer points) {
+        return userService.deductPoints(userId, points);
+    }
 }

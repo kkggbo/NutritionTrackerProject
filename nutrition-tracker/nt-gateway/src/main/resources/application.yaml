@@ -24,6 +24,10 @@ spring:
           uri: lb://recipe-service
           predicates:
             - Path=/recipe/**
+        - id: reward-service
+          uri: lb://reward-service
+          predicates:
+            - Path=/reward/**
     sentinel:
       transport:
         dashboard: localhost:8090

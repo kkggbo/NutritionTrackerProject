@@ -1,8 +1,8 @@
 server:
-  port: 8082 # 配置端口号
+  port: 8086 # 配置端口号
 spring:
   application:
-    name: user-service # 配置服务名称
+    name: reward-service # 配置服务名称
   datasource:
     url: jdbc:mysql://localhost:3306/nutrition_db?useSSL=false&useUnicode=true&characterEncoding=UTF-8&serverTimezone=UTC&allowPublicKeyRetrieval=true #  数据库连接地址
     driver-class-name: com.mysql.cj.jdbc.Driver # 数据库驱动

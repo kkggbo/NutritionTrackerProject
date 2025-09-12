@@ -23,6 +23,7 @@ import org.springframework.cloud.client.discovery.DiscoveryClient;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpMethod;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
@@ -122,7 +123,12 @@ public class UserServiceImpl implements UserService {
         return Result.success();
     }
 
-
+    @Override
+    @Transactional
+    public boolean deductPoints(Long userId, Integer points) {
+        int updated = userMapper.deductPoints(userId, points);
+        return updated > 0;
+    }
 
 
     // TODO 远程调用food service
