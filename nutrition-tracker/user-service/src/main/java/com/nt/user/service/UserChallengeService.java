@@ -1,17 +1,20 @@
 package com.nt.user.service;
 
+import com.nt.common.Result;
 import com.nt.user.domain.po.UserChallenge;
+import com.nt.user.domain.vo.ChallengeVO;
+import com.nt.user.domain.vo.UserChallengeVO;
 
 
 import java.util.List;
 
 public interface UserChallengeService {
 
-    UserChallenge startChallenge(UserChallenge challenge);
+    Result<String> startChallenge(Long challengeId);
 
-    List<UserChallenge> getChallengesByUser(Long userId);
+    Result<String> terminateChallenge(Long id);
 
-    UserChallenge getChallengeDetail(Long id);
+    Result<List<ChallengeVO>> getAllActiveChallenges();
 
-    UserChallenge terminateChallenge(Long id);
+    Result<List<UserChallengeVO>> getUserChallenges();
 }

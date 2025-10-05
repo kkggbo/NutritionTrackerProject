@@ -13,6 +13,7 @@ import AddFood from '@/views/AddFood.vue'
 import UserCenter from '@/views/UserCenter.vue'
 import RecipeList from '@/views/RecipeList.vue'
 import UploadRecipe from '@/views/UploadRecipe.vue'
+import Challenge from '@/views/Challenge.vue'
 
 
 // 定义路由关系
@@ -36,7 +37,8 @@ const routes = [
         name: 'RecipeDetail',
         component: () => import('@/views/RecipeDetail.vue')
     },
-    { path: '/uploadRecipe', component: UploadRecipe }
+    { path: '/uploadRecipe', component: UploadRecipe },
+    { path: '/challenge', component: Challenge }
 ]
 
 // 创建路由器

@@ -34,6 +34,7 @@ import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.time.LocalDateTime;
 import java.util.*;
+import java.util.concurrent.ThreadLocalRandom;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -159,89 +160,107 @@ public class RecipeServiceImpl implements RecipeService {
     @Override
     @Transactional
     public RecipeVO getRecipe(Long id) {
+        String key = REDIS_KEY_RECIPE_DETAIL + id;
+        String lockKey = "lock:recipe:" + id;
+        String lockValue = UUID.randomUUID().toString();
 
-        // 尝试从redis中获取vo
-        String cached = redisUtils.getRaw(REDIS_KEY_RECIPE_DETAIL + id);
+        // 尝试从缓存中获取
+        String cached = redisUtils.getRaw(key);
 
-        // 判断缓存中是否为空值（食谱不存在）
         if ("NULL".equals(cached)) {
             return null;
         }
-        // 若缓存中不为null也不为"NULL"，则返回缓存中的数据
-        RecipeVO RedisVO = redisUtils.get(REDIS_KEY_RECIPE_DETAIL + id, RecipeVO.class);
         if (cached != null) {
+            RecipeVO RedisVO = redisUtils.get(key, RecipeVO.class);
             log.info("从redis中获取食谱成功: {}", cached);
             return RedisVO;
         }
 
-        // 缓存中的值为null，查询数据库
-        RecipePO po = recipeMapper.getRecipeById(id);
+        // 缓存未命中 尝试加锁
+        boolean locked = redisUtils.tryLock(lockKey, lockValue, 10, TimeUnit.SECONDS); // 10秒过期避免死锁
 
-        // 判断食谱是否存在
-        if (po == null) {
-            // 缓存空对象5分钟，防止缓存穿透
-            redisUtils.set(REDIS_KEY_RECIPE_DETAIL + id, "NULL", 5, TimeUnit.MINUTES);
-            return null;
+        if (!locked) {
+            // 其他线程已拿到锁，稍等后重试
+            try {
+                Thread.sleep(50);
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+            }
+            return getRecipe(id); // 递归重试一次
         }
 
-        // 组装VO
-        RecipeVO vo = new RecipeVO(
-                po.getId(),
-                po.getName(),
-                po.getUserId(),
-                po.getDescription(),
-                po.getCookTime(),
-                po.getMealType(),
-                null, // 稍后获取食材信息
-                po.getSteps() != null ? Arrays.asList(po.getSteps().split("\n")) : new ArrayList<>(), // 拆解步骤
-                po.getTotalCalories(),
-                po.getTotalProtein(),
-                po.getTotalFat(),
-                po.getTotalCarbs(),
-                po.getImageUrl()
-        );
+        try {
+            // 双重检查：避免重复查库
+            cached = redisUtils.getRaw(key);
+            if ("NULL".equals(cached)) {
+                return null;
+            }
+            if (cached != null) {
+                return redisUtils.get(key, RecipeVO.class);
+            }
 
-        // 获取食材信息
-        // 查询recipe_food表获取食材id和重量
-        List<RecipeFoodPO> recipeFoods = recipeMapper.getRecipeFoods(id);
+            // 查询数据库
+            RecipePO po = recipeMapper.getRecipeById(id);
 
-        // 获取食材ids
-        List<Long> foodIds = recipeFoods.stream()
-                .map(RecipeFoodPO::getFoodId)
-                .collect(Collectors.toList());
+            if (po == null) {
+                // 写入空值防止穿透
+                redisUtils.set(key, "NULL", 5, TimeUnit.MINUTES);
+                return null;
+            }
 
-        // 远程调用food-service查询食材名字
-        List<FoodVO> foods = foodClient.getFoodsByIds(foodIds).getData();
+            // 组装VO
+            RecipeVO vo = new RecipeVO(
+                    po.getId(),
+                    po.getName(),
+                    po.getUserId(),
+                    po.getDescription(),
+                    po.getCookTime(),
+                    po.getMealType(),
+                    null,
+                    po.getSteps() != null ? Arrays.asList(po.getSteps().split("\n")) : new ArrayList<>(),
+                    po.getTotalCalories(),
+                    po.getTotalProtein(),
+                    po.getTotalFat(),
+                    po.getTotalCarbs(),
+                    po.getImageUrl()
+            );
 
-        // 根据recipeFoods和foods组装食材信息
-        // 先把foods转成Map，key是foodId，value是FoodVO
-        Map<Long, FoodVO> foodMap = foods.stream()
-                .collect(Collectors.toMap(FoodVO::getId, Function.identity()));
+            // 获取食材信息
+            List<RecipeFoodPO> recipeFoods = recipeMapper.getRecipeFoods(id);
+            List<Long> foodIds = recipeFoods.stream().map(RecipeFoodPO::getFoodId).toList();
+            List<FoodVO> foods = foodClient.getFoodsByIds(foodIds).getData();
+            Map<Long, FoodVO> foodMap = foods.stream()
+                    .collect(Collectors.toMap(FoodVO::getId, Function.identity()));
 
-        // 根据recipeFoods组装FoodIngredient列表
-        List<RecipeVO.FoodIngredient> ingredients = recipeFoods.stream()
-                .map(rf -> {
-                    FoodVO food = foodMap.get(rf.getFoodId());
-                    if (food != null) {
-                        RecipeVO.FoodIngredient fi = new RecipeVO.FoodIngredient();
-                        fi.setFoodId(food.getId());
-                        fi.setName(food.getName());
-                        fi.setWeight(rf.getWeight());
-                        return fi;
-                    } else {
-                        return null; //找不到对应food，返回null
-                    }
-                })
-                .filter(Objects::nonNull)
-                .toList();
+            List<RecipeVO.FoodIngredient> ingredients = recipeFoods.stream()
+                    .map(rf -> {
+                        FoodVO food = foodMap.get(rf.getFoodId());
+                        if (food != null) {
+                            RecipeVO.FoodIngredient fi = new RecipeVO.FoodIngredient();
+                            fi.setFoodId(food.getId());
+                            fi.setName(food.getName());
+                            fi.setWeight(rf.getWeight());
+                            return fi;
+                        }
+                        return null;
+                    })
+                    .filter(Objects::nonNull)
+                    .toList();
 
-        vo.setIngredients(ingredients);
+            vo.setIngredients(ingredients);
 
-        // 把结果储存到redis
-        redisUtils.set(REDIS_KEY_RECIPE_DETAIL + id, vo, 30, TimeUnit.DAYS);
-        log.info("添加Redis缓存成功: {}", REDIS_KEY_RECIPE_DETAIL + id);
-        return vo;
+            // 回填缓存
+            redisUtils.set(key, vo);
+
+            log.info("添加Redis缓存成功: {}", key);
+            return vo;
+
+        } finally {
+            // 4. 释放锁
+            redisUtils.unlock(lockKey, lockValue);
+        }
     }
+
 
     @Override
     @Transactional

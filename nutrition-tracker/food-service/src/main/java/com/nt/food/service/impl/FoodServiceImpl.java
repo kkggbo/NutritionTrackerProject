@@ -197,7 +197,8 @@ public class FoodServiceImpl implements FoodService {
     @Override
     public Result<FoodVO> getFoodDetail(Long foodId) {
         // 尝试从Redis缓存获取数据
-        FoodVO food = redisUtils.get(REDIS_KEY_FOOD_DETAIL + foodId, FoodVO.class);
+        String redisKey = REDIS_KEY_FOOD_DETAIL + foodId;
+        FoodVO food = redisUtils.get(redisKey, FoodVO.class);
 
         // 如果缓存中不存在，则从数据库中查询
         if  (food == null) {

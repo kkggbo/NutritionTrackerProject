@@ -90,7 +90,7 @@
             <el-form-item label="步骤">
                 <div v-for="(step, index) in form.steps" :key="index" class="step-row">
                     <el-input v-model="form.steps[index]" placeholder="输入烹饪步骤" style="flex: 1;"></el-input>
-                    <el-button type="danger" @click="removeIngredient(index)"
+                    <el-button type="danger" @click="removeStep(index)"
                         style="margin-left: 10px; flex-shrink: 0;">
                         <i class="el-icon-delete"></i> 移除
                     </el-button>

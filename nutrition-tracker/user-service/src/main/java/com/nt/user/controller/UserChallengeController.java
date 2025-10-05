@@ -1,6 +1,9 @@
 package com.nt.user.controller;
 
+import com.nt.common.Result;
 import com.nt.user.domain.po.UserChallenge;
+import com.nt.user.domain.vo.ChallengeVO;
+import com.nt.user.domain.vo.UserChallengeVO;
 import com.nt.user.service.UserChallengeService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -15,35 +18,33 @@ public class UserChallengeController {
     UserChallengeService challengeService;
 
     /**
-     * 发起挑战
+     * 获取所有激活的挑战
+     * @return
+     */
+    @GetMapping("/list")
+    public Result<List<ChallengeVO>> listActiveChallenges() {
+        return challengeService.getAllActiveChallenges();
+    }
+
+    /**
+     * 开启一项挑战
+     * @param challengeId
+     * @return
      */
     @PostMapping("/start")
-    public UserChallenge startChallenge(@RequestBody UserChallenge challenge) {
-        return challengeService.startChallenge(challenge);
+    public Result<String> startChallenge(@RequestParam Long challengeId) {
+        return challengeService.startChallenge(challengeId);
     }
 
-    /**
-     * 查询用户的所有挑战
-     */
-    @GetMapping("/{userId}")
-    public List<UserChallenge> getChallengesByUser(@PathVariable Long userId) {
-        return challengeService.getChallengesByUser(userId);
+    @PostMapping("/terminate")
+    public Result<String> terminateChallenge(@RequestParam Long userChallengeId) {
+        return challengeService.terminateChallenge(userChallengeId);
     }
 
-    /**
-     * 查询单个挑战详情
-     */
-    @GetMapping("/detail/{id}")
-    public UserChallenge getChallengeDetail(@PathVariable Long id) {
-        return challengeService.getChallengeDetail(id);
+    @GetMapping("/ongoingList")
+    public Result<List<UserChallengeVO>>  getUserChallenges() {
+        return challengeService.getUserChallenges();
     }
 
-    /**
-     * 终止挑战（用户主动放弃）
-     */
-    @PutMapping("/{id}/terminate")
-    public UserChallenge terminateChallenge(@PathVariable Long id) {
-        return challengeService.terminateChallenge(id);
-    }
 
 }

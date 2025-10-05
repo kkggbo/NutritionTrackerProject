@@ -154,5 +154,42 @@ public class RedisUtils {
         return stringRedisTemplate.keys(pattern);
     }
 
+    // ----------------- 互斥锁 -----------------
+
+    /**
+     * 尝试获取锁
+     *
+     * @param key      锁的key
+     * @param value    锁的唯一标识
+     * @param timeout  锁过期时间
+     * @param unit     时间单位
+     * @return 是否加锁成功
+     */
+    public boolean tryLock(String key, String value, long timeout, TimeUnit unit) {
+        Boolean success = stringRedisTemplate.opsForValue()
+                .setIfAbsent(key, value, timeout, unit);
+        if (Boolean.TRUE.equals(success)) {
+            log.info("获取锁成功: {}", key);
+            return true;
+        }
+        return false;
+    }
+
+    /**
+     * 释放锁
+     *
+     * @param key   锁的key
+     * @param value 锁的唯一标识（与加锁时传入的相同）
+     */
+    public void unlock(String key, String value) {
+        String currentValue = stringRedisTemplate.opsForValue().get(key);
+        if (value.equals(currentValue)) {
+            stringRedisTemplate.delete(key);
+            log.info("释放锁成功: {}", key);
+        } else {
+            log.warn("释放锁失败：锁已过期或不属于当前线程: {}", key);
+        }
+    }
+
 
 }

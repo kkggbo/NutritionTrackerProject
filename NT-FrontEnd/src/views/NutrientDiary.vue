@@ -198,7 +198,7 @@ const tabs = [
   { name: 'diary', label: '营养日记', icon: '📔', path: '/' },
   { name: 'recipe', label: '食谱', icon: '🥗', path: '/recipeList' },
   { name: 'profile', label: '个人中心', icon: '👤', path: '/userCenter' },
-  { name: 'settings', label: '设置（TODO）', icon: '⚙️', path: '/' }
+  { name: 'challenge', label: '挑战', icon: '⚔️', path: "/challenge" }
 ]
 
 userDiaryInfo()
