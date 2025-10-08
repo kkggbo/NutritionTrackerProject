@@ -61,4 +61,12 @@ public class UserController {
     public boolean deductPoints(@PathVariable Long userId, @RequestParam Integer points) {
         return userService.deductPoints(userId, points);
     }
+
+    /**
+     * 获取用户积分
+     */
+    @GetMapping("/points")
+    public Result<Integer> getPoints() {
+        return userService.getPoints();
+    }
 }

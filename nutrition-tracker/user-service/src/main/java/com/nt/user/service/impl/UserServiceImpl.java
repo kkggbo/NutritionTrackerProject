@@ -130,6 +130,16 @@ public class UserServiceImpl implements UserService {
         return updated > 0;
     }
 
+    @Override
+    public Result<Integer> getPoints() {
+        Long userId = UserThreadLocal.getUserId();
+        Integer points = userMapper.getPoints(userId);
+        if (points == null) {
+            return Result.error("相关信息不存在");
+        }
+        return Result.success(points);
+    }
+
 
     // TODO 远程调用food service
     /**

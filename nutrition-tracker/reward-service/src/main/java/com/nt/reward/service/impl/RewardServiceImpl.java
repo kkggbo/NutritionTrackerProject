@@ -14,6 +14,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
+
 @Service
 @Slf4j
 @RequiredArgsConstructor
@@ -70,6 +72,12 @@ public class RewardServiceImpl implements RewardService {
         }
 
         return Result.success("兑换成功");
+    }
+
+    @Override
+    public Result<List<Gift>> listGifts() {
+        List<Gift> gifts = rewardMapper.listGifts();
+        return Result.success(gifts);
     }
 
 }

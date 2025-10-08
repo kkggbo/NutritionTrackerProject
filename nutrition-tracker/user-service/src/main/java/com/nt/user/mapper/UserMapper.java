@@ -34,4 +34,7 @@ public interface UserMapper {
 
     @Update("UPDATE user SET points = points - #{points} WHERE id = #{userId} AND points >= #{points}")
     int deductPoints(Long userId, Integer points);
+
+    @Select("SELECT points FROM user WHERE id = #{userId}")
+    Integer getPoints(Long userId);
 }

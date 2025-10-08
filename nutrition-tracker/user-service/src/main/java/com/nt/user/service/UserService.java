@@ -15,4 +15,6 @@ public interface UserService {
     Result<String> updateUserProfile(UserProfileDTO userProfile);
 
     boolean deductPoints(Long userId, Integer points);
+
+    Result<Integer> getPoints();
 }

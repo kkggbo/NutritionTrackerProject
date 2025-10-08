@@ -63,3 +63,8 @@ export function updateUserInfoService(submitData) {
         data: submitData
     })
 }
+
+// 获取用户积分
+export const getPointsService = () => {
+  return request.get('/user/points')
+}

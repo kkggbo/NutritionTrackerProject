@@ -11,17 +11,21 @@
         <el-descriptions-item label="目标">{{ user.goalText }}</el-descriptions-item>
         <el-descriptions-item label="体重">{{ user.weight }} kg</el-descriptions-item>
         <el-descriptions-item label="活动水平">{{ user.activityText }}</el-descriptions-item>
+        <el-descriptions-item label="当前积分">{{ points }} 分</el-descriptions-item>
       </el-descriptions>
 
-      <div class="mt-4">
+      <div class="mt-4 flex-col">
         <el-button type="primary" @click="openEdit" class="full-width" style="margin-top: 4%;">编辑资料</el-button>
+      </div>
+
+            <div class="mt-4 flex-col">
+        <el-button type="success" @click="openRewardDialog" class="full-width" style="margin-top: 4%;">积分兑换</el-button>
       </div>
     </el-card>
 
     <!-- 编辑资料对话框 -->
-    <el-dialog title="编辑个人资料" v-model="editVisible" width="70%" :close-on-click-modal="false"
-      :modal-append-to-body="true">
-      <el-form :model="editForm" label-width="50%" class="edit-form">
+    <el-dialog title="编辑个人资料" v-model="editVisible" width="70%" :close-on-click-modal="false" :modal-append-to-body="true">
+      <el-form :model="editForm" class="edit-form">
         <el-form-item label="性别">
           <el-select v-model="editForm.genderText" placeholder="选择性别" class="full-width">
             <el-option label="男" value="男" />
@@ -56,7 +60,34 @@
 
       <template #footer>
         <el-button class="full-width" @click="editVisible = false">取消</el-button>
-        <el-button type="primary" class="full-width mt-2" @click="saveProfile">保存</el-button>
+        <el-button type="primary" class="full-width mt-2" style="margin-top: 10px;" @click="saveProfile">保存</el-button>
+      </template>
+    </el-dialog>
+
+    <!-- 积分兑换对话框 -->
+    <el-dialog title="积分兑换中心" v-model="rewardDialogVisible" width="80%">
+      <el-row :gutter="20">
+        <el-col v-for="gift in giftList" :key="gift.id" :xs="24" :sm="12" :md="8" :lg="6">
+          <el-card shadow="hover" class="gift-card">
+            <el-image :src="gift.imageUrl" alt="gift" class="gift-img" />
+            <h3>{{ gift.name }}</h3>
+            <p>{{ gift.description }}</p>
+            <p>所需积分：<b>{{ gift.requiredPoints }}</b></p>
+            <p>库存：{{ gift.stock }}</p>
+            <el-input-number
+              v-model="gift.selectedCount"
+              :min="0"
+              :max="gift.stock"
+              size="small"
+              class="mt-1"
+            />
+          </el-card>
+        </el-col>
+      </el-row>
+
+      <template #footer>
+        <el-button @click="rewardDialogVisible = false">关闭</el-button>
+        <el-button type="primary" @click="exchangeGifts">确认兑换</el-button>
       </template>
     </el-dialog>
   </div>
@@ -73,19 +104,19 @@
 <script setup>
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
-import { getUserInfoService, updateUserInfoService } from '../api/user'
+import { getUserInfoService, updateUserInfoService, getPointsService } from '../api/user'
+import { listGiftsService, exchangeGiftsService } from '../api/reward'
 import { ElMessage } from 'element-plus'
+
 const router = useRouter()
 
-// 响应式对象
-const user = ref({
-  username: '',
-  age: 0,
-  weight: 0,
-  height: 0,
-  goalText: '',
-  activityText: ''
-})
+// 响应式数据
+const user = ref({})
+const points = ref(0)
+const editVisible = ref(false)
+const editForm = ref({})
+const rewardDialogVisible = ref(false)
+const giftList = ref([])
 
 // 映射表
 const genderMap = { '1': '男', '2': '女' }
@@ -102,16 +133,11 @@ const activityReverseMap = {
   '极高强度活动': '1.9'
 }
 
-const editVisible = ref(false)
-const editForm = ref({ ...user.value })
-
 // 获取用户信息
 const getUserInfo = async () => {
   try {
-    let result = await getUserInfoService()
-    console.log('获取用户信息成功', result)
+    const result = await getUserInfoService()
     const data = result.data
-
     if (data) {
       user.value = {
         ...data,
@@ -119,61 +145,127 @@ const getUserInfo = async () => {
         goalText: goalMap[data.goal] || '未知',
         activityText: activityMap[data.activityLevel] || data.activityLevel
       }
-    } else {
-      console.warn(result.msg || '获取日记信息失败')
     }
   } catch (error) {
-    console.error('请求失败', error)
+    console.error('获取用户信息失败', error)
   }
 }
 
-// 提交修改用户信息
+// 获取用户积分
+const getPoints = async () => {
+  try {
+    const res = await getPointsService()
+    points.value = res.data || 0
+  } catch (error) {
+    console.error('获取积分失败', error)
+  }
+}
+
+// 打开编辑
+const openEdit = () => {
+  editVisible.value = true
+  editForm.value = { ...user.value }
+}
+
+// 保存资料
 const saveProfile = async () => {
-  // 构造提交数据
   const submitData = {
     username: editForm.value.username,
     age: editForm.value.age,
     weight: editForm.value.weight,
     height: editForm.value.height,
-    gender: genderReverseMap[editForm.value.gender] || 1,
-    goal: goalReverseMap[editForm.value.goal] || 1,
+    gender: genderReverseMap[editForm.value.genderText] || 1,
+    goal: goalReverseMap[editForm.value.goalText] || 1,
     activityLevel: activityReverseMap[editForm.value.activityText] || 1.2
   }
-  console.log('提交修改用户信息:', submitData)
   try {
     const res = await updateUserInfoService(submitData)
     if (res.code === 1) {
       ElMessage.success('信息更新成功')
-      // 更新本地显示
       user.value = { ...editForm.value }
       editVisible.value = false
     } else {
-      console.warn('更新失败:', res.msg)
+      ElMessage.error(res.msg || '更新失败')
     }
   } catch (err) {
     console.error('提交失败', err)
   }
 }
 
-const openEdit = () => {
-  editVisible.value = true
-  editForm.value = { ...user.value } // 每次打开时拷贝最新信息
+// 打开积分兑换对话框
+const openRewardDialog = async () => {
+  rewardDialogVisible.value = true
+  try {
+    const res = await listGiftsService()
+    console.log('res', res)
+    if (res.code === 1 && Array.isArray(res.data)) {
+      giftList.value = res.data.map(g => ({ ...g, selectedCount: 0 }))
+    }
+  } catch (error) {
+    console.error('获取礼品列表失败', error)
+  }
 }
 
+// 兑换礼品
+const exchangeGifts = async () => {
+  const selected = giftList.value.filter(g => g.selectedCount > 0)
+  if (selected.length === 0) {
+    ElMessage.warning('请至少选择一个礼品')
+    return
+  }
 
-// 底部导航栏切换
+  let totalPoints = 0
+  for (const g of selected) {
+    if (g.selectedCount > g.stock) {
+      ElMessage.warning(`${g.name} 库存不足`)
+      return
+    }
+    totalPoints += g.requiredPoints * g.selectedCount
+  }
+  console.log('totalPoints', totalPoints)
+  console.log('currentPoints', points.value)
+
+  if (totalPoints > points.value) {
+    ElMessage.warning('积分不足，无法兑换')
+    return
+  }
+
+  try {
+    for (const g of selected) {
+      const res = await exchangeGiftsService({ giftId: g.id, count: g.selectedCount })
+      if (res.code !== 1) {
+        ElMessage.error(`${g.name} 兑换失败：${res.msg}`)
+        return
+      }
+    }
+    ElMessage.success('兑换成功！')
+    rewardDialogVisible.value = false
+    getPoints() // 刷新积分
+  } catch (error) {
+    console.error('兑换失败', error)
+  }
+}
+
+// 初始化
+getUserInfo()
+getPoints()
+
+// 底部导航栏
 const tabs = [
   { name: 'diary', label: '营养日记', icon: '📔', path: '/' },
   { name: 'recipe', label: '食谱', icon: '🥗', path: '/recipeList' },
   { name: 'profile', label: '个人中心', icon: '👤', path: '/userCenter' },
   { name: 'challenge', label: '挑战', icon: '⚔️', path: "/challenge" }
 ]
-
-
-getUserInfo()
 </script>
 
 <style scoped>
+
+.edit-form {
+  width: 60%;
+  margin: 0 auto; /* 表单整体水平居中 */
+}
+
 .profile-page {
   max-width: 800px;
   margin: 0 auto;
@@ -186,43 +278,25 @@ getUserInfo()
   height: calc(100vh - 56px);
 }
 
-.title {
-  font-size: 1.6rem;
-  font-weight: bold;
+.full-width {
+  width: 100%;
+  margin: 0; 
+  align-items: center;
+}
+
+.gift-card {
+  text-align: center;
+  border-radius: 10px;
   margin-bottom: 1rem;
 }
 
-.full-width {
+.gift-img {
   width: 100%;
-  margin: 0;
-  align-items: center,
+  height: 140px;
+  object-fit: cover;
+  border-radius: 10px;
 }
 
-.mt-2 {
-  margin-top: 0.5rem;
-}
-
-.el-form {
-  align-items: center
-}
-
-.el-form-item {
-  width: 75%;
-}
-
-
-/* 响应式优化，竖屏下卡片和对话框宽度占满屏幕 */
-@media (max-width: 768px) {
-  .profile-page {
-    padding: 1rem;
-  }
-
-  .profile-card {
-    padding: 1rem;
-  }
-}
-
-/* 底部导航栏固定 */
 .bottom-nav {
   position: fixed;
   bottom: 0;
@@ -233,7 +307,6 @@ getUserInfo()
   background: #fff;
   height: 56px;
   z-index: 1000;
-  /* 确保在最上层 */
 }
 
 .nav-item {
@@ -252,18 +325,6 @@ getUserInfo()
 
 .nav-item .icon {
   font-size: 20px;
-  line-height: 1;
   margin-bottom: 2px;
-}
-
-.nav-item.active {
-  color: #409eff;
-  font-weight: 600;
-}
-
-/* 关键：给主内容区域留出底部高度，避免被导航栏挡住 */
-.recipe-list-page {
-  padding-bottom: 70px;
-  /* 要大于 bottom-nav 的高度 */
 }
 </style>

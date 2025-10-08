@@ -30,4 +30,11 @@ public interface RewardMapper {
     @Options(useGeneratedKeys = true, keyProperty = "id")
     int insertOrder(com.nt.reward.entity.RewardOrder order);
 
+    /**
+     * 查询所有礼品
+     */
+    @Select("SELECT id, name, description, image_url, required_points, stock, status, created_at, updated_at " +
+            "FROM gift " +
+            "WHERE stock > 0 AND status = 1")
+    List<Gift> listGifts();
 }
